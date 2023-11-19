@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -32,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isExponentialEnabled = false;
   bool _isTenToPowerXEnabled = false;
   bool _isCustomRootEnabled = false;
-  bool _isEEPowerEnabled = false;
+  bool _isAngleModeEnabled = false;
 
   double _xValue = 0.0;
   double _yValue = 0.0;
@@ -59,7 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _isExponentialEnabled = false;
     _isTenToPowerXEnabled = false;
     _isCustomRootEnabled = false;
-    _isEEPowerEnabled = false;
+    _isAngleModeEnabled = false;
 
     _xValue = 0.0;
     _yValue = 0.0;
@@ -107,6 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
           recallMemory();
           break;
         // row #2
+        case '1st':
         case '2nd':
           changeScheme();
           break;
@@ -159,6 +161,26 @@ class _HomeScreenState extends State<HomeScreen> {
           break;
         case 'EE':
           ee();
+          break;
+        // row #5
+        case 'rad':
+        case 'deg':
+          setAngleMode();
+          break;
+        case 'sinh':
+          sineh();
+          break;
+        case 'cosh':
+          cosineh();
+          break;
+        case 'tanh':
+          tangenth();
+          break;
+        case 'pi':
+          pi();
+          break;
+        case 'rand':
+          rand();
           break;
         default:
           appendText(text);
@@ -605,8 +627,73 @@ class _HomeScreenState extends State<HomeScreen> {
       } catch (e) {
         _expression = 'Error';
       }
+    });
+  }
 
-      _isEEPowerEnabled = false;
+  void setAngleMode() {
+    setState(() {
+      _isAngleModeEnabled = !_isAngleModeEnabled;
+    });
+  }
+
+  void sineh() {
+    setState(() {
+      try {
+        Parser p = Parser();
+        Expression exp = p.parse(_expression);
+
+        double value = exp.evaluate(EvaluationType.REAL, ContextModel());
+        double result = _sinh(value);
+
+        _expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      } catch (e) {
+        _expression = 'Error';
+      }
+    });
+  }
+
+  void cosineh() {
+    setState(() {
+      try {
+        Parser p = Parser();
+        Expression exp = p.parse(_expression);
+
+        double value = exp.evaluate(EvaluationType.REAL, ContextModel());
+        double result = _cosh(value);
+
+        _expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      } catch (e) {
+        _expression = 'Error';
+      }
+    });
+  }
+
+  void tangenth() {
+    setState(() {
+      try {
+        Parser p = Parser();
+        Expression exp = p.parse(_expression);
+
+        double value = exp.evaluate(EvaluationType.REAL, ContextModel());
+        double result = _tanh(value);
+
+        _expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      } catch (e) {
+        _expression = 'Error';
+      }
+    });
+  }
+
+  void pi() {
+    setState(() {
+      double piValue = math.pi;
+      _expression = '$piValue';
+    });
+  }
+
+  void rand() {
+    setState(() {
+      _expression = Random().nextDouble().toString();
     });
   }
 
@@ -746,6 +833,20 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  double _sinh(double x) {
+    return (exp(x) - exp(-x)) / 2;
+  }
+
+  double _cosh(double x) {
+    return (exp(x) + exp(-x)) / 2;
+  }
+
+  double _tanh(double x) {
+    double ex = exp(x);
+    double eMinusX = exp(-x);
+    return (ex - eMinusX) / (ex + eMinusX);
+  }
+
   bool _isInt(num value, {double epsilon = 1e-10}) {
     return value is int || (value - value.roundToDouble()).abs() < epsilon;
   }
@@ -874,11 +975,11 @@ class _HomeScreenState extends State<HomeScreen> {
     List<Widget> landscapeButtonListRow2 = isLandscape
         ? <Widget>[
             _actionButtonWidget(
-                '2nd',
-                _topTextWidget('2', 'nd', textStyle),
+                _secondScheme ? '1st' : '2nd',
                 _secondScheme
-                    ? buttonSwitcherActiveBgColor
-                    : buttonAditionalBgColor),
+                    ? _topTextWidget('1', 'st', textStyle)
+                    : _topTextWidget('2', 'nd', textStyle),
+                buttonAditionalBgColor),
             _actionButtonWidget('x^2', _topTextWidget('x', '2', textStyle),
                 buttonAditionalBgColor),
             _actionButtonWidget('x^3', _topTextWidget('x', '3', textStyle),
@@ -939,17 +1040,19 @@ class _HomeScreenState extends State<HomeScreen> {
     List<Widget> landscapeButtonListRow5 = isLandscape
         ? <Widget>[
             _actionButtonWidget(
-                '(', _textWidget('Rad', textStyle), buttonAditionalBgColor),
+                _isAngleModeEnabled ? 'deg' : 'rad',
+                _textWidget(_isAngleModeEnabled ? 'Deg' : 'Rad', textStyle),
+                buttonAditionalBgColor),
             _actionButtonWidget(
-                ')', _textWidget('sinh', textStyle), buttonAditionalBgColor),
+                'sinh', _textWidget('sinh', textStyle), buttonAditionalBgColor),
             _actionButtonWidget(
-                ')', _textWidget('cosh', textStyle), buttonAditionalBgColor),
+                'cosh', _textWidget('cosh', textStyle), buttonAditionalBgColor),
             _actionButtonWidget(
-                ')', _textWidget('tanh', textStyle), buttonAditionalBgColor),
+                'tanh', _textWidget('tanh', textStyle), buttonAditionalBgColor),
             _actionButtonWidget(
-                ')', _textWidget('\u03C0', textStyle), buttonAditionalBgColor),
+                'pi', _textWidget('\u03C0', textStyle), buttonAditionalBgColor),
             _actionButtonWidget(
-                ')', _textWidget('Rand', textStyle), buttonAditionalBgColor),
+                'rand', _textWidget('Rand', textStyle), buttonAditionalBgColor),
           ]
         : <Widget>[];
 
