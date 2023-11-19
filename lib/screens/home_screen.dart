@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -17,16 +18,21 @@ class _HomeScreenState extends State<HomeScreen> {
   static const Color buttonBgColor = Color(0xFF2D2D2D);
   static const Color buttonTextColor = Colors.white;
   static const Color buttonAditionalBgColor = Color(0xFF212121);
+  static const Color buttonSwitcherActiveBgColor = Color(0xFF7F7F7F);
   static const Color operatorButtonBgColor = Colors.orange;
   static const Color specialButtonBgColor = Color(0xFF9B9B9B);
 
   String _expression = '0';
+  double _memoryValue = 0.0;
   bool _secondScheme = false;
   bool _resetExpression = false;
 
+  bool _isMemoryEnabled = false;
   bool _isPowerEnabled = false;
   bool _isExponentialEnabled = false;
   bool _isTenToPowerXEnabled = false;
+  bool _isCustomRootEnabled = false;
+  bool _isEEPowerEnabled = false;
 
   double _xValue = 0.0;
   double _yValue = 0.0;
@@ -34,6 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    _setInitialValues();
   }
 
   @override
@@ -41,10 +48,27 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
+  void _setInitialValues() {
+    _expression = '0';
+    _memoryValue = 0.0;
+    _secondScheme = false;
+    _resetExpression = false;
+
+    _isMemoryEnabled = false;
+    _isPowerEnabled = false;
+    _isExponentialEnabled = false;
+    _isTenToPowerXEnabled = false;
+    _isCustomRootEnabled = false;
+    _isEEPowerEnabled = false;
+
+    _xValue = 0.0;
+    _yValue = 0.0;
+  }
+
   void _onButtonPressed(String text) {
     setState(() {
       switch (text) {
-        // portrait
+        // PORTRAIT
         case 'AC':
           clearExpression();
           break;
@@ -68,7 +92,21 @@ class _HomeScreenState extends State<HomeScreen> {
         case '.':
           addDecimalPoint();
           break;
-        // landscape
+        // LANDSCAPE
+        // row #1
+        case 'mc':
+          clearMemory();
+          break;
+        case 'm+':
+          addToMemory();
+          break;
+        case 'm-':
+          subtractFromMemory();
+          break;
+        case 'mr':
+          recallMemory();
+          break;
+        // row #2
         case '2nd':
           changeScheme();
           break;
@@ -79,10 +117,48 @@ class _HomeScreenState extends State<HomeScreen> {
           power();
           break;
         case 'e^x':
-          exponential();
+          exponentialPower();
           break;
         case '10^x':
           tenToPowerX();
+          break;
+        // row #3
+        case '1/x':
+          reciprocal();
+          break;
+        case '^2√x':
+          squareRootSquare();
+          break;
+        case '^3√x':
+          cubeRootSquare();
+          break;
+        case '^y√x':
+          customRoot();
+          break;
+        case 'ln':
+          ln();
+          break;
+        case 'log_10':
+          logSubscript10();
+          break;
+        // row #4
+        case 'x!':
+          factorial();
+          break;
+        case 'sin':
+          sine();
+          break;
+        case 'cos':
+          cosine();
+          break;
+        case 'tan':
+          tangent();
+          break;
+        case 'e':
+          exponential();
+          break;
+        case 'EE':
+          ee();
           break;
         default:
           appendText(text);
@@ -111,6 +187,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
       _isPowerEnabled = false;
       _isExponentialEnabled = false;
+      _isTenToPowerXEnabled = false;
+      _isCustomRootEnabled = false;
 
       _xValue = 0.0;
       _yValue = 0.0;
@@ -125,6 +203,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
       _isPowerEnabled = false;
       _isExponentialEnabled = false;
+      _isTenToPowerXEnabled = false;
+      _isCustomRootEnabled = false;
 
       _xValue = 0.0;
       _yValue = 0.0;
@@ -154,6 +234,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (_isTenToPowerXEnabled) {
       calculateTenToPowerX();
+      return;
+    }
+
+    if (_isCustomRootEnabled) {
+      calculateCustomRoot();
       return;
     }
 
@@ -194,6 +279,36 @@ class _HomeScreenState extends State<HomeScreen> {
       if (!_expression.contains('.')) {
         _expression += '.';
       }
+    });
+  }
+
+  void clearMemory() {
+    setState(() {
+      _isMemoryEnabled = false;
+      _memoryValue = 0.0;
+    });
+  }
+
+  void addToMemory() {
+    setState(() {
+      _isMemoryEnabled = true;
+      _memoryValue += double.parse(_expression);
+    });
+  }
+
+  void subtractFromMemory() {
+    setState(() {
+      _isMemoryEnabled = true;
+      _memoryValue -= double.parse(_expression);
+    });
+  }
+
+  void recallMemory() {
+    setState(() {
+      _isMemoryEnabled = true;
+      _expression = _isInt(_memoryValue)
+          ? '$_memoryValue'.split('.')[0]
+          : '$_memoryValue';
     });
   }
 
@@ -255,7 +370,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void exponential() {
+  void exponentialPower() {
     setState(() {
       try {
         _isExponentialEnabled = !_isExponentialEnabled;
@@ -279,9 +394,235 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void reciprocal() {
+    setState(() {
+      try {
+        Parser p = Parser();
+        Expression exp = p.parse(_expression);
+        ContextModel cm = ContextModel();
+
+        _expression = '1/($exp)';
+
+        exp = p.parse(_expression);
+
+        var result = exp.evaluate(EvaluationType.REAL, cm);
+
+        _expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      } catch (e) {
+        _expression = 'Error';
+      }
+    });
+  }
+
+  void squareRootSquare() {
+    setState(() {
+      try {
+        Parser p = Parser();
+        Expression exp = p.parse(_expression);
+        ContextModel cm = ContextModel();
+
+        _expression = '($exp)^(1/2)';
+
+        exp = p.parse(_expression);
+
+        var result = exp.evaluate(EvaluationType.REAL, cm);
+
+        _expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      } catch (e) {
+        _expression = 'Error';
+      }
+    });
+  }
+
+  void cubeRootSquare() {
+    setState(() {
+      try {
+        Parser p = Parser();
+        Expression exp = p.parse(_expression);
+        ContextModel cm = ContextModel();
+
+        _expression = '($exp)^(1/3)';
+
+        exp = p.parse(_expression);
+
+        var result = exp.evaluate(EvaluationType.REAL, cm);
+
+        _expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      } catch (e) {
+        _expression = 'Error';
+      }
+    });
+  }
+
+  void customRoot() {
+    setState(() {
+      _isCustomRootEnabled = !_isCustomRootEnabled;
+      _yValue = double.parse(_expression);
+      _resetExpression = !_resetExpression;
+    });
+  }
+
+  void ln() {
+    setState(() {
+      try {
+        Parser p = Parser();
+        Expression exp = p.parse(_expression);
+
+        ContextModel cm = ContextModel();
+        _expression = 'ln($exp)';
+
+        exp = p.parse(_expression);
+
+        var result = exp.evaluate(EvaluationType.REAL, cm);
+
+        _expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      } catch (e) {
+        _expression = 'Error';
+      }
+
+      _resetExpression = false;
+    });
+  }
+
+  void logSubscript10() {
+    setState(() {
+      try {
+        double value = double.parse(_expression);
+        double result = log(value) / ln10;
+
+        _expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      } catch (e) {
+        _expression = 'Error';
+      }
+
+      _resetExpression = false;
+    });
+  }
+
+  void factorial() {
+    setState(() {
+      try {
+        int value = int.parse(_expression);
+        if (value < 0) {
+          _expression = 'Error';
+          return;
+        }
+
+        int result = 1;
+        for (int i = 2; i <= value; i++) {
+          result *= i;
+        }
+
+        _expression = '$result';
+      } catch (e) {
+        _expression = 'Error';
+      }
+
+      _resetExpression = false;
+    });
+  }
+
+  void sine() {
+    setState(() {
+      try {
+        Parser p = Parser();
+        Expression exp = p.parse(_expression);
+        ContextModel cm = ContextModel();
+        cm.bindVariable(Variable('x'), Number(0));
+        _expression = 'sin($exp)';
+        exp = p.parse(_expression);
+        var result = exp.evaluate(EvaluationType.REAL, cm);
+        _expression = '$result';
+      } catch (e) {
+        _expression = 'Error';
+      }
+
+      _resetExpression = false;
+    });
+  }
+
+  void cosine() {
+    setState(() {
+      try {
+        Parser p = Parser();
+        Expression exp = p.parse(_expression);
+        ContextModel cm = ContextModel();
+        cm.bindVariable(Variable('x'), Number(0));
+        _expression = 'cos($exp)';
+        exp = p.parse(_expression);
+        var result = exp.evaluate(EvaluationType.REAL, cm);
+        _expression = '$result';
+      } catch (e) {
+        _expression = 'Error';
+      }
+
+      _resetExpression = false;
+    });
+  }
+
+  void tangent() {
+    setState(() {
+      try {
+        Parser p = Parser();
+        Expression exp = p.parse(_expression);
+        ContextModel cm = ContextModel();
+        cm.bindVariable(Variable('x'), Number(0));
+        _expression = 'tan($exp)';
+        exp = p.parse(_expression);
+        var result = exp.evaluate(EvaluationType.REAL, cm);
+        _expression = '$result';
+      } catch (e) {
+        _expression = 'Error';
+      }
+
+      _resetExpression = false;
+    });
+  }
+
+  void exponential() {
+    setState(() {
+      try {
+        double eValue = exp(1);
+
+        _expression = '$eValue';
+      } catch (e) {
+        _expression = 'Error';
+      }
+
+      _resetExpression = false;
+    });
+  }
+
+  void ee() {
+    setState(() {
+      try {
+        String powerExpression =
+            _expression.substring(_expression.lastIndexOf('^') + 1);
+        double power = double.parse(powerExpression);
+        double result = double.parse(_expression) * pow(10, power);
+
+        _expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      } catch (e) {
+        _expression = 'Error';
+      }
+
+      _isEEPowerEnabled = false;
+    });
+  }
+
   void appendText(String newText) {
     setState(() {
       if (_isPowerEnabled) {
+        if (_resetExpression) {
+          _expression = '';
+          _resetExpression = false;
+        }
+
+        _expression += newText;
+        return;
+      }
+
+      if (_isCustomRootEnabled) {
         if (_resetExpression) {
           _expression = '';
           _resetExpression = false;
@@ -315,9 +656,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
         var result = exp.evaluate(EvaluationType.REAL, cm);
 
-        _expression = '$result'.split('.')[0].length > 1
-            ? '$result'.split('.')[0]
-            : '$result';
+        _expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
       } catch (e) {
         _expression = 'Error';
       }
@@ -381,6 +720,32 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void calculateCustomRoot() {
+    setState(() {
+      try {
+        Parser p = Parser();
+        Expression exp = p.parse(_expression);
+
+        ContextModel cm = ContextModel();
+        cm.bindVariable(Variable('y'), Number(_yValue));
+
+        _expression = '(y)^(1/$exp)';
+
+        exp = p.parse(_expression);
+
+        var result = exp.evaluate(EvaluationType.REAL, cm);
+
+        _expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      } catch (e) {
+        _expression = 'Error';
+      }
+
+      _xValue = 0.0;
+      _isCustomRootEnabled = false;
+      _resetExpression = false;
+    });
+  }
+
   bool _isInt(num value, {double epsilon = 1e-10}) {
     return value is int || (value - value.roundToDouble()).abs() < epsilon;
   }
@@ -391,7 +756,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _textWidget(String text, TextStyle style) {
     return FittedBox(
-      fit: BoxFit.contain,
+      fit: BoxFit.fitWidth,
       child: Text(
         text,
         textAlign: TextAlign.center,
@@ -403,7 +768,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _topTextWidget(String text, String childText, TextStyle style) {
     return FittedBox(
-      fit: BoxFit.contain,
+      fit: BoxFit.fitWidth,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -426,7 +791,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _bottomTextWidget(String text, String childText, TextStyle style) {
     return FittedBox(
-      fit: BoxFit.contain,
+      fit: BoxFit.fitWidth,
       child: Center(
         child: RichText(
           text: TextSpan(
@@ -498,14 +863,22 @@ class _HomeScreenState extends State<HomeScreen> {
             _actionButtonWidget(
                 'm-', _textWidget('m-', textStyle), buttonAditionalBgColor),
             _actionButtonWidget(
-                'mr', _textWidget('mr', textStyle), buttonAditionalBgColor),
+                'mr',
+                _textWidget('mr', textStyle),
+                _isMemoryEnabled
+                    ? buttonSwitcherActiveBgColor
+                    : buttonAditionalBgColor),
           ]
         : <Widget>[];
 
     List<Widget> landscapeButtonListRow2 = isLandscape
         ? <Widget>[
-            _actionButtonWidget('2nd', _topTextWidget('2', 'nd', textStyle),
-                _secondScheme ? specialButtonBgColor : buttonAditionalBgColor),
+            _actionButtonWidget(
+                '2nd',
+                _topTextWidget('2', 'nd', textStyle),
+                _secondScheme
+                    ? buttonSwitcherActiveBgColor
+                    : buttonAditionalBgColor),
             _actionButtonWidget('x^2', _topTextWidget('x', '2', textStyle),
                 buttonAditionalBgColor),
             _actionButtonWidget('x^3', _topTextWidget('x', '3', textStyle),
@@ -514,7 +887,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 'x^y',
                 _topTextWidget('x', 'y', textStyle),
                 _isPowerEnabled
-                    ? specialButtonBgColor
+                    ? buttonSwitcherActiveBgColor
                     : buttonAditionalBgColor),
             _actionButtonWidget('e^x', _topTextWidget('e', 'x', textStyle),
                 buttonAditionalBgColor),
@@ -526,16 +899,22 @@ class _HomeScreenState extends State<HomeScreen> {
     List<Widget> landscapeButtonListRow3 = isLandscape
         ? <Widget>[
             _actionButtonWidget(
-                '(', _textWidget('1/x', textStyle), buttonAditionalBgColor),
+                '1/x', _textWidget('1/x', textStyle), buttonAditionalBgColor),
             _actionButtonWidget(
-                ')', _textWidget('2√x', textStyle), buttonAditionalBgColor),
+                '^2√x', _textWidget('2√x', textStyle), buttonAditionalBgColor),
             _actionButtonWidget(
-                ')', _textWidget('3√x', textStyle), buttonAditionalBgColor),
+                '^3√x', _textWidget('3√x', textStyle), buttonAditionalBgColor),
             _actionButtonWidget(
-                ')', _textWidget('y√x', textStyle), buttonAditionalBgColor),
+                '^y√x',
+                _textWidget('y√x', textStyle),
+                _isCustomRootEnabled
+                    ? buttonSwitcherActiveBgColor
+                    : buttonAditionalBgColor),
             _actionButtonWidget(
-                ')', _textWidget('ln', textStyle), buttonAditionalBgColor),
-            _actionButtonWidget(')', _bottomTextWidget('log', '10', textStyle),
+                'ln', _textWidget('ln', textStyle), buttonAditionalBgColor),
+            _actionButtonWidget(
+                'log_10',
+                _bottomTextWidget('log', '10', textStyle),
                 buttonAditionalBgColor),
           ]
         : <Widget>[];
@@ -543,17 +922,17 @@ class _HomeScreenState extends State<HomeScreen> {
     List<Widget> landscapeButtonListRow4 = isLandscape
         ? <Widget>[
             _actionButtonWidget(
-                '(', _textWidget('x!', textStyle), buttonAditionalBgColor),
+                'x!', _textWidget('x!', textStyle), buttonAditionalBgColor),
             _actionButtonWidget(
-                ')', _textWidget('sin', textStyle), buttonAditionalBgColor),
+                'sin', _textWidget('sin', textStyle), buttonAditionalBgColor),
             _actionButtonWidget(
-                ')', _textWidget('cos', textStyle), buttonAditionalBgColor),
+                'cos', _textWidget('cos', textStyle), buttonAditionalBgColor),
             _actionButtonWidget(
-                ')', _textWidget('tan', textStyle), buttonAditionalBgColor),
+                'tan', _textWidget('tan', textStyle), buttonAditionalBgColor),
             _actionButtonWidget(
-                ')', _textWidget('e', textStyle), buttonAditionalBgColor),
+                'e', _textWidget('e', textStyle), buttonAditionalBgColor),
             _actionButtonWidget(
-                ')', _textWidget('EE', textStyle), buttonAditionalBgColor),
+                'EE', _textWidget('EE', textStyle), buttonAditionalBgColor),
           ]
         : <Widget>[];
 
