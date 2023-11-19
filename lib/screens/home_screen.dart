@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -22,10 +21,30 @@ class _HomeScreenState extends State<HomeScreen> {
   static const Color specialButtonBgColor = Color(0xFF9B9B9B);
 
   String _expression = '0';
+  bool _secondScheme = false;
+  bool _resetExpression = false;
+
+  bool _isPowerEnabled = false;
+  bool _isExponentialEnabled = false;
+  bool _isTenToPowerXEnabled = false;
+
+  double _xValue = 0.0;
+  double _yValue = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   void _onButtonPressed(String text) {
     setState(() {
       switch (text) {
+        // portrait
         case 'AC':
           clearExpression();
           break;
@@ -33,7 +52,6 @@ class _HomeScreenState extends State<HomeScreen> {
           backspace();
         case '±':
           changeSign();
-          break;
           break;
         case '=':
           evaluateExpression();
@@ -50,6 +68,22 @@ class _HomeScreenState extends State<HomeScreen> {
         case '.':
           addDecimalPoint();
           break;
+        // landscape
+        case '2nd':
+          changeScheme();
+          break;
+        case 'x^3':
+          cube();
+          break;
+        case 'x^y':
+          power();
+          break;
+        case 'e^x':
+          exponential();
+          break;
+        case '10^x':
+          tenToPowerX();
+          break;
         default:
           appendText(text);
           break;
@@ -57,65 +91,302 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void _onSwipeLeftAction() {
+    setState(() {
+      _expression = _expression.length > 1 ? _expression.substring(1) : '0';
+    });
+  }
+
+  void _onSwipeRightAction() {
+    setState(() {
+      _expression = _expression.length > 1
+          ? _expression.substring(0, _expression.length - 1)
+          : '0';
+    });
+  }
+
   void clearExpression() {
-    _expression = '0';
+    setState(() {
+      _expression = '0';
+
+      _isPowerEnabled = false;
+      _isExponentialEnabled = false;
+
+      _xValue = 0.0;
+      _yValue = 0.0;
+    });
   }
 
   void backspace() {
-    _expression = _expression.length > 1
-        ? _expression.substring(0, _expression.length - 1)
-        : '0';
+    setState(() {
+      _expression = _expression.length > 1
+          ? _expression.substring(0, _expression.length - 1)
+          : '0';
+
+      _isPowerEnabled = false;
+      _isExponentialEnabled = false;
+
+      _xValue = 0.0;
+      _yValue = 0.0;
+    });
   }
 
   void changeSign() {
-    if (_expression != '0') {
-      if (_expression.startsWith('-')) {
-        _expression = _expression.substring(1);
-      } else {
-        _expression = '-' + _expression;
+    setState(() {
+      if (_expression != '0') {
+        _expression = _expression.startsWith('-')
+            ? _expression.substring(1)
+            : '-$_expression';
       }
-    }
+    });
   }
 
   void evaluateExpression() {
-    try {
-      Parser p = Parser();
-      Expression exp = p.parse(_expression);
-      ContextModel cm = ContextModel();
-
-      var result = exp.evaluate(EvaluationType.REAL, cm);
-
-      if (result % 1 == 0) {
-        _expression = '$result'.split('.')[0];
-      } else {
-        _expression = '$result';
-      }
-    } catch (e) {
-      _expression = 'Error';
+    if (_isPowerEnabled) {
+      calculatePower();
+      return;
     }
+
+    if (_isExponentialEnabled) {
+      calculateExponential();
+      return;
+    }
+
+    if (_isTenToPowerXEnabled) {
+      calculateTenToPowerX();
+      return;
+    }
+
+    setState(() {
+      try {
+        Parser p = Parser();
+        Expression exp = p.parse(_expression);
+        ContextModel cm = ContextModel();
+
+        var result = exp.evaluate(EvaluationType.REAL, cm);
+
+        _expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      } catch (e) {
+        _expression = 'Error';
+      }
+    });
   }
 
   void applyPercentage() {
-    try {
-      _expression += '/100';
-      evaluateExpression();
-    } catch (e) {
-      _expression = 'Error';
-    }
+    setState(() {
+      try {
+        _expression += '/100';
+        evaluateExpression();
+      } catch (e) {
+        _expression = 'Error';
+      }
+    });
   }
 
   void appendOperator(String operator) {
-    _expression += ' $operator ';
+    setState(() {
+      _expression += operator;
+    });
   }
 
   void addDecimalPoint() {
-    if (!_expression.contains('.')) {
-      _expression += '.';
-    }
+    setState(() {
+      if (!_expression.contains('.')) {
+        _expression += '.';
+      }
+    });
+  }
+
+  void changeScheme() {
+    setState(() {
+      _secondScheme = !_secondScheme;
+    });
+  }
+
+  void square() {
+    setState(() {
+      try {
+        Parser p = Parser();
+        Expression exp = p.parse(_expression);
+        ContextModel cm = ContextModel();
+
+        cm.bindVariable(Variable('x'), Number(0));
+
+        _expression = '($exp)^2';
+
+        exp = p.parse(_expression);
+
+        var result = exp.evaluate(EvaluationType.REAL, cm);
+
+        _expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      } catch (e) {
+        _expression = 'Error';
+      }
+    });
+  }
+
+  void cube() {
+    setState(() {
+      try {
+        Parser p = Parser();
+        Expression exp = p.parse(_expression);
+
+        ContextModel cm = ContextModel();
+        cm.bindVariable(Variable('x'), Number(0));
+
+        _expression = '($exp)^3';
+
+        exp = p.parse(_expression);
+
+        var result = exp.evaluate(EvaluationType.REAL, cm);
+
+        _expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      } catch (e) {
+        _expression = 'Error';
+      }
+    });
+  }
+
+  void power() {
+    setState(() {
+      _isPowerEnabled = !_isPowerEnabled;
+      _xValue = double.parse(_expression);
+      _resetExpression = !_resetExpression;
+    });
+  }
+
+  void exponential() {
+    setState(() {
+      try {
+        _isExponentialEnabled = !_isExponentialEnabled;
+        _xValue = double.parse(_expression);
+        evaluateExpression();
+      } catch (e) {
+        _expression = 'Error';
+      }
+    });
+  }
+
+  void tenToPowerX() {
+    setState(() {
+      try {
+        _isTenToPowerXEnabled = true;
+        _xValue = double.parse(_expression);
+        evaluateExpression();
+      } catch (e) {
+        _expression = 'Error';
+      }
+    });
   }
 
   void appendText(String newText) {
-    _expression = (_expression == '0') ? newText : _expression + newText;
+    setState(() {
+      if (_isPowerEnabled) {
+        if (_resetExpression) {
+          _expression = '';
+          _resetExpression = false;
+        }
+
+        _expression += newText;
+        return;
+      }
+
+      _expression = (_expression == '0') ? newText : _expression + newText;
+    });
+  }
+
+  void calculatePower() {
+    setState(() {
+      try {
+        Parser p = Parser();
+        Expression exp = p.parse(_expression);
+        String originalExpression = _expression;
+
+        _expression = '0';
+        _yValue = double.parse(originalExpression);
+
+        ContextModel cm = ContextModel();
+        cm.bindVariable(Variable('x'), Number(_xValue));
+        cm.bindVariable(Variable('y'), Number(_yValue));
+
+        _expression = 'x^y';
+
+        exp = p.parse(_expression);
+
+        var result = exp.evaluate(EvaluationType.REAL, cm);
+
+        _expression = '$result'.split('.')[0].length > 1
+            ? '$result'.split('.')[0]
+            : '$result';
+      } catch (e) {
+        _expression = 'Error';
+      }
+
+      _xValue = 0.0;
+      _yValue = 0.0;
+      _isPowerEnabled = false;
+      _resetExpression = false;
+    });
+  }
+
+  void calculateExponential() {
+    setState(() {
+      try {
+        Parser p = Parser();
+        Expression exp = p.parse(_expression);
+
+        ContextModel cm = ContextModel();
+        cm.bindVariable(Variable('x'), Number(_xValue));
+
+        _expression = 'e^($exp)';
+
+        exp = p.parse(_expression);
+
+        var result = exp.evaluate(EvaluationType.REAL, cm);
+
+        _expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      } catch (e) {
+        _expression = 'Error';
+      }
+
+      _xValue = 0.0;
+      _yValue = 0.0;
+      _isExponentialEnabled = false;
+    });
+  }
+
+  void calculateTenToPowerX() {
+    setState(() {
+      try {
+        Parser p = Parser();
+        Expression exp = p.parse(_expression);
+
+        ContextModel cm = ContextModel();
+        cm.bindVariable(Variable('x'), Number(_xValue));
+
+        _expression = '10^($exp)';
+
+        exp = p.parse(_expression);
+
+        var result = exp.evaluate(EvaluationType.REAL, cm);
+
+        _expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      } catch (e) {
+        _expression = 'Error';
+      }
+
+      _xValue = 0.0;
+      _yValue = 0.0;
+      _isTenToPowerXEnabled = false;
+    });
+  }
+
+  bool _isInt(num value, {double epsilon = 1e-10}) {
+    return value is int || (value - value.roundToDouble()).abs() < epsilon;
+  }
+
+  String _getExpression() {
+    return _expression;
   }
 
   Widget _textWidget(String text, TextStyle style) {
@@ -221,29 +492,33 @@ class _HomeScreenState extends State<HomeScreen> {
             _actionButtonWidget(
                 ')', _textWidget(')', textStyle), buttonAditionalBgColor),
             _actionButtonWidget(
-                ')', _textWidget('mc', textStyle), buttonAditionalBgColor),
+                'mc', _textWidget('mc', textStyle), buttonAditionalBgColor),
             _actionButtonWidget(
-                ')', _textWidget('m+', textStyle), buttonAditionalBgColor),
+                'm+', _textWidget('m+', textStyle), buttonAditionalBgColor),
             _actionButtonWidget(
-                ')', _textWidget('m-', textStyle), buttonAditionalBgColor),
+                'm-', _textWidget('m-', textStyle), buttonAditionalBgColor),
             _actionButtonWidget(
-                ')', _textWidget('mr', textStyle), buttonAditionalBgColor),
+                'mr', _textWidget('mr', textStyle), buttonAditionalBgColor),
           ]
         : <Widget>[];
 
     List<Widget> landscapeButtonListRow2 = isLandscape
         ? <Widget>[
-            _actionButtonWidget('(', _topTextWidget('2', 'nd', textStyle),
+            _actionButtonWidget('2nd', _topTextWidget('2', 'nd', textStyle),
+                _secondScheme ? specialButtonBgColor : buttonAditionalBgColor),
+            _actionButtonWidget('x^2', _topTextWidget('x', '2', textStyle),
                 buttonAditionalBgColor),
-            _actionButtonWidget(')', _topTextWidget('x', '2', textStyle),
+            _actionButtonWidget('x^3', _topTextWidget('x', '3', textStyle),
                 buttonAditionalBgColor),
-            _actionButtonWidget(')', _topTextWidget('x', '3', textStyle),
+            _actionButtonWidget(
+                'x^y',
+                _topTextWidget('x', 'y', textStyle),
+                _isPowerEnabled
+                    ? specialButtonBgColor
+                    : buttonAditionalBgColor),
+            _actionButtonWidget('e^x', _topTextWidget('e', 'x', textStyle),
                 buttonAditionalBgColor),
-            _actionButtonWidget(')', _topTextWidget('x', 'y', textStyle),
-                buttonAditionalBgColor),
-            _actionButtonWidget(')', _topTextWidget('e', 'x', textStyle),
-                buttonAditionalBgColor),
-            _actionButtonWidget(')', _topTextWidget('10', 'x', textStyle),
+            _actionButtonWidget('10^x', _topTextWidget('10', 'x', textStyle),
                 buttonAditionalBgColor),
           ]
         : <Widget>[];
@@ -309,14 +584,23 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: EdgeInsets.symmetric(
                   horizontal: isLandscape ? (screenWidth / 11.0) / 2 : 16.0),
               alignment: Alignment.bottomRight,
-              child: FittedBox(
-                child: Text(
-                  _expression,
-                  style: GoogleFonts.roboto(
-                    textStyle: const TextStyle(
-                        fontSize: 98.0,
-                        fontWeight: FontWeight.w300,
-                        color: Colors.white),
+              child: GestureDetector(
+                onHorizontalDragEnd: (details) {
+                  if (details.primaryVelocity! > 0) {
+                    _onSwipeRightAction();
+                  } else if (details.primaryVelocity! < 0) {
+                    _onSwipeLeftAction();
+                  }
+                },
+                child: FittedBox(
+                  child: Text(
+                    _getExpression(),
+                    style: GoogleFonts.roboto(
+                      textStyle: const TextStyle(
+                          fontSize: 98.0,
+                          fontWeight: FontWeight.w300,
+                          color: Colors.white),
+                    ),
                   ),
                 ),
               ),
