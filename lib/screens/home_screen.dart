@@ -35,8 +35,10 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isPowerEnabled = false;
   bool _isExponentialEnabled = false;
   bool _isTenToPowerXEnabled = false;
+  bool _isTwoToPowerXEnabled = false;
   bool _isCustomRootEnabled = false;
   bool _isAngleModeEnabled = false;
+  bool _isLogSubscriptYEnabled = false;
 
   double _xValue = 0.0;
   double _yValue = 0.0;
@@ -64,8 +66,10 @@ class _HomeScreenState extends State<HomeScreen> {
     _isPowerEnabled = false;
     _isExponentialEnabled = false;
     _isTenToPowerXEnabled = false;
+    _isTwoToPowerXEnabled = false;
     _isCustomRootEnabled = false;
     _isAngleModeEnabled = false;
+    _isLogSubscriptYEnabled = false;
 
     _xValue = 0.0;
     _yValue = 0.0;
@@ -129,24 +133,33 @@ class _HomeScreenState extends State<HomeScreen> {
         case '10^x':
           tenToPowerX();
           break;
+        case '2^x':
+          twoToPowerX();
+          break;
         // row #3
         case '1/x':
           reciprocal();
           break;
-        case '^2√x':
+        case 'sqrt[2]{x}':
           squareRootSquare();
           break;
-        case '^3√x':
+        case 'sqrt[3]{x}':
           cubeRootSquare();
           break;
-        case '^y√x':
+        case 'sqrt[y]{x}':
           customRoot();
           break;
         case 'ln':
           ln();
           break;
+        case 'log_2':
+          logSubscript2();
+          break;
         case 'log_10':
           logSubscript10();
+          break;
+        case 'log_y':
+          logSubscriptY();
           break;
         // row #4
         case 'x!':
@@ -215,7 +228,9 @@ class _HomeScreenState extends State<HomeScreen> {
       _isPowerEnabled = false;
       _isExponentialEnabled = false;
       _isTenToPowerXEnabled = false;
+      _isTwoToPowerXEnabled = false;
       _isCustomRootEnabled = false;
+      _isLogSubscriptYEnabled = false;
 
       _xValue = 0.0;
       _yValue = 0.0;
@@ -231,7 +246,9 @@ class _HomeScreenState extends State<HomeScreen> {
       _isPowerEnabled = false;
       _isExponentialEnabled = false;
       _isTenToPowerXEnabled = false;
+      _isTwoToPowerXEnabled = false;
       _isCustomRootEnabled = false;
+      _isLogSubscriptYEnabled = false;
 
       _xValue = 0.0;
       _yValue = 0.0;
@@ -264,8 +281,18 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
+    if (_isTwoToPowerXEnabled) {
+      calculateTwoToPowerX();
+      return;
+    }
+
     if (_isCustomRootEnabled) {
       calculateCustomRoot();
+      return;
+    }
+
+    if (_isLogSubscriptYEnabled) {
+      calculateLogSubscriptY();
       return;
     }
 
@@ -421,6 +448,18 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void twoToPowerX() {
+    setState(() {
+      try {
+        _isTwoToPowerXEnabled = true;
+        _xValue = double.parse(_expression);
+        evaluateExpression();
+      } catch (e) {
+        _expression = 'Error';
+      }
+    });
+  }
+
   void reciprocal() {
     setState(() {
       try {
@@ -511,6 +550,21 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void logSubscript2() {
+    setState(() {
+      try {
+        double value = double.parse(_expression);
+        double result = log(value) / log(2);
+
+        _expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      } catch (e) {
+        _expression = 'Error';
+      }
+
+      _resetExpression = false;
+    });
+  }
+
   void logSubscript10() {
     setState(() {
       try {
@@ -523,6 +577,14 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
       _resetExpression = false;
+    });
+  }
+
+  void logSubscriptY() {
+    setState(() {
+      _isLogSubscriptYEnabled = !_isLogSubscriptYEnabled;
+      _yValue = double.parse(_expression);
+      _resetExpression = !_resetExpression;
     });
   }
 
@@ -724,6 +786,16 @@ class _HomeScreenState extends State<HomeScreen> {
         return;
       }
 
+      if (_isLogSubscriptYEnabled) {
+        if (_resetExpression) {
+          _expression = '';
+          _resetExpression = false;
+        }
+
+        _expression += newText;
+        return;
+      }
+
       _expression = (_expression == '0') ? newText : _expression + newText;
     });
   }
@@ -812,6 +884,32 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void calculateTwoToPowerX() {
+    setState(() {
+      try {
+        Parser p = Parser();
+        Expression exp = p.parse(_expression);
+
+        ContextModel cm = ContextModel();
+        cm.bindVariable(Variable('x'), Number(_xValue));
+
+        _expression = '2^($exp)';
+
+        exp = p.parse(_expression);
+
+        var result = exp.evaluate(EvaluationType.REAL, cm);
+
+        _expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      } catch (e) {
+        _expression = 'Error';
+      }
+
+      _xValue = 0.0;
+      _yValue = 0.0;
+      _isTwoToPowerXEnabled = false;
+    });
+  }
+
   void calculateCustomRoot() {
     setState(() {
       try {
@@ -834,6 +932,23 @@ class _HomeScreenState extends State<HomeScreen> {
 
       _xValue = 0.0;
       _isCustomRootEnabled = false;
+      _resetExpression = false;
+    });
+  }
+
+  void calculateLogSubscriptY() {
+    setState(() {
+      try {
+        double value = double.parse(_expression);
+        double result = log(_yValue) / log(value);
+
+        _expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      } catch (e) {
+        _expression = 'Error';
+      }
+
+      _xValue = 0.0;
+      _isLogSubscriptYEnabled = false;
       _resetExpression = false;
     });
   }
@@ -892,27 +1007,17 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     if (platform == TargetPlatform.android) {
-      // Check if the device is a smartphone based on screen width and height
-
-      // Define a threshold to differentiate between smartphones and tablets
       double threshold = 600.0;
-
-      // Update isSmartphone based on the screen size
       setState(() {
         _isSmartphone = screenWidth < threshold || screenHeight < threshold;
       });
     } else if (platform == TargetPlatform.iOS) {
-      // Check if the device is a smartphone based on screen width and height
-
-      // Define a threshold to differentiate between smartphones and tablets
       double threshold = 600.0;
 
-      // Update isSmartphone based on the screen size
       setState(() {
         _isSmartphone = screenWidth < threshold || screenHeight < threshold;
       });
     } else {
-      // For other platforms, you may need to implement similar logic.
       setState(() {
         _isSmartphone = false;
       });
@@ -925,7 +1030,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _textWidget(String text, TextStyle style) {
     return FittedBox(
-      fit: BoxFit.fitWidth,
+      fit: BoxFit.contain,
       child: Text(
         text,
         textAlign: TextAlign.center,
@@ -935,9 +1040,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _topTextWidget(String text, String childText, TextStyle style) {
+  Widget _powerTextWidget(String text, String childText, TextStyle style) {
     return FittedBox(
-      fit: BoxFit.fitWidth,
+      fit: BoxFit.contain,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -958,9 +1063,32 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _bottomTextWidget(String text, String childText, TextStyle style) {
+  Widget _rootPowerTextWidget(String text, String childText, TextStyle style) {
     return FittedBox(
-      fit: BoxFit.fitWidth,
+      fit: BoxFit.contain,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Baseline(
+            baseline: 0,
+            baselineType: TextBaseline.alphabetic,
+            child: Text(
+              childText,
+              style: const TextStyle(fontSize: 14, color: Colors.white),
+            ),
+          ),
+          Text(
+            text,
+            style: style,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _subscriptTextWidget(String text, String childText, TextStyle style) {
+    return FittedBox(
+      fit: BoxFit.contain,
       child: Center(
         child: RichText(
           text: TextSpan(
@@ -1058,22 +1186,26 @@ class _HomeScreenState extends State<HomeScreen> {
             _actionButtonWidget(
                 _secondScheme ? '1st' : '2nd',
                 _secondScheme
-                    ? _topTextWidget('1', 'st', textStyle)
-                    : _topTextWidget('2', 'nd', textStyle),
+                    ? _powerTextWidget('1', 'st', textStyle)
+                    : _powerTextWidget('2', 'nd', textStyle),
                 buttonAditionalBgColor),
-            _actionButtonWidget('x^2', _topTextWidget('x', '2', textStyle),
+            _actionButtonWidget('x^2', _powerTextWidget('x', '2', textStyle),
                 buttonAditionalBgColor),
-            _actionButtonWidget('x^3', _topTextWidget('x', '3', textStyle),
+            _actionButtonWidget('x^3', _powerTextWidget('x', '3', textStyle),
                 buttonAditionalBgColor),
             _actionButtonWidget(
                 'x^y',
-                _topTextWidget('x', 'y', textStyle),
+                _powerTextWidget('x', 'y', textStyle),
                 _isPowerEnabled
                     ? buttonSwitcherActiveBgColor
                     : buttonAditionalBgColor),
-            _actionButtonWidget('e^x', _topTextWidget('e', 'x', textStyle),
+            _actionButtonWidget('e^x', _powerTextWidget('e', 'x', textStyle),
                 buttonAditionalBgColor),
-            _actionButtonWidget('10^x', _topTextWidget('10', 'x', textStyle),
+            _actionButtonWidget(
+                _secondScheme ? '2^x' : '10^x',
+                _secondScheme
+                    ? _powerTextWidget('2', 'x', textStyle)
+                    : _powerTextWidget('10', 'x', textStyle),
                 buttonAditionalBgColor),
           ]
         : <Widget>[];
@@ -1083,20 +1215,30 @@ class _HomeScreenState extends State<HomeScreen> {
             _actionButtonWidget(
                 '1/x', _textWidget('1/x', textStyle), buttonAditionalBgColor),
             _actionButtonWidget(
-                '^2√x', _textWidget('2√x', textStyle), buttonAditionalBgColor),
+                'sqrt[2]{x}',
+                _rootPowerTextWidget('√x', '2', textStyle),
+                buttonAditionalBgColor),
             _actionButtonWidget(
-                '^3√x', _textWidget('3√x', textStyle), buttonAditionalBgColor),
+                'sqrt[3]{x}',
+                _rootPowerTextWidget('√x', '3', textStyle),
+                buttonAditionalBgColor),
             _actionButtonWidget(
-                '^y√x',
-                _textWidget('y√x', textStyle),
+                'sqrt[y]{x}',
+                _rootPowerTextWidget('√x', 'y', textStyle),
                 _isCustomRootEnabled
                     ? buttonSwitcherActiveBgColor
                     : buttonAditionalBgColor),
             _actionButtonWidget(
-                'ln', _textWidget('ln', textStyle), buttonAditionalBgColor),
+                _secondScheme ? 'log_y' : 'ln',
+                _secondScheme
+                    ? _subscriptTextWidget('log', 'y', textStyle)
+                    : _textWidget('ln', textStyle),
+                buttonAditionalBgColor),
             _actionButtonWidget(
-                'log_10',
-                _bottomTextWidget('log', '10', textStyle),
+                _secondScheme ? 'log_2' : 'log_10',
+                _secondScheme
+                    ? _subscriptTextWidget('log', '2', textStyle)
+                    : _subscriptTextWidget('log', '10', textStyle),
                 buttonAditionalBgColor),
           ]
         : <Widget>[];
