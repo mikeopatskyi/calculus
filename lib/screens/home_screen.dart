@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 import 'dart:math' as math;
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -22,6 +23,8 @@ class _HomeScreenState extends State<HomeScreen> {
   static const Color buttonSwitcherActiveBgColor = Color(0xFF7F7F7F);
   static const Color operatorButtonBgColor = Colors.orange;
   static const Color specialButtonBgColor = Color(0xFF9B9B9B);
+
+  bool _isSmartphone = true;
 
   String _expression = '0';
   double _memoryValue = 0.0;
@@ -54,6 +57,8 @@ class _HomeScreenState extends State<HomeScreen> {
     _memoryValue = 0.0;
     _secondScheme = false;
     _resetExpression = false;
+
+    _isSmartphone = true;
 
     _isMemoryEnabled = false;
     _isPowerEnabled = false;
@@ -851,6 +856,69 @@ class _HomeScreenState extends State<HomeScreen> {
     return value is int || (value - value.roundToDouble()).abs() < epsilon;
   }
 
+  bool _isAndroid() {
+    return Platform.isAndroid;
+  }
+
+  bool _isIOS() {
+    return Platform.isIOS;
+  }
+
+  bool _isPortrait() {
+    return MediaQuery.of(context).orientation == Orientation.portrait;
+  }
+
+  bool _isLandscape() {
+    return MediaQuery.of(context).orientation == Orientation.landscape;
+  }
+
+  double _getScreenWidth() {
+    return MediaQuery.of(context).size.width;
+  }
+
+  double _getScreenHeight() {
+    return MediaQuery.of(context).size.height;
+  }
+
+  Future<void> checkSmartphone() async {
+    var platform = Theme.of(context).platform;
+    var screenWidth = MediaQuery.of(context).size.width;
+    var screenHeight = MediaQuery.of(context).size.height;
+
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+
+    setState(() {
+      _isSmartphone = true;
+    });
+
+    if (platform == TargetPlatform.android) {
+      // Check if the device is a smartphone based on screen width and height
+
+      // Define a threshold to differentiate between smartphones and tablets
+      double threshold = 600.0;
+
+      // Update isSmartphone based on the screen size
+      setState(() {
+        _isSmartphone = screenWidth < threshold || screenHeight < threshold;
+      });
+    } else if (platform == TargetPlatform.iOS) {
+      // Check if the device is a smartphone based on screen width and height
+
+      // Define a threshold to differentiate between smartphones and tablets
+      double threshold = 600.0;
+
+      // Update isSmartphone based on the screen size
+      setState(() {
+        _isSmartphone = screenWidth < threshold || screenHeight < threshold;
+      });
+    } else {
+      // For other platforms, you may need to implement similar logic.
+      setState(() {
+        _isSmartphone = false;
+      });
+    }
+  }
+
   String _getExpression() {
     return _expression;
   }
@@ -912,13 +980,23 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _actionButtonWidget(
       String buttonText, Widget buttonWidget, Color bgColor) {
-    Orientation orientation = MediaQuery.of(context).orientation;
-    bool isPortrait = orientation == Orientation.portrait;
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
-    double buttonWidth = isPortrait ? screenWidth / 4 : screenWidth / 11.0;
-    double buttonHeight =
-        isPortrait ? screenWidth / 4 : (screenHeight - 100.0) / 5.0;
+    bool isPortrait = _isPortrait();
+    double screenWidth = _getScreenWidth();
+
+    var buttonWidth = 0.0;
+    var buttonHeight = 0.0;
+
+    if (_isSmartphone) {
+      buttonWidth = isPortrait ? screenWidth / 4.0 : screenWidth / 10.5;
+      buttonHeight =
+          isPortrait ? screenWidth / 4.0 : (screenWidth - 100.0) / 16.0;
+    }
+
+    if (!_isSmartphone) {
+      buttonWidth = isPortrait ? screenWidth / 4.0 : screenWidth / 10.5;
+      buttonHeight =
+          isPortrait ? screenWidth / 8.0 : (screenWidth - 100.0) / 16.0;
+    }
 
     return SizedBox(
       width: buttonWidth,
@@ -939,19 +1017,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Orientation orientation = MediaQuery.of(context).orientation;
-    bool isIOS = Platform.isIOS;
-    bool isLandscape = orientation == Orientation.landscape;
-    bool isPortrait = orientation == Orientation.portrait;
+    checkSmartphone();
+
+    bool isPortrait = _isPortrait();
+    bool isIOS = _isIOS();
+    double screenWidth = _getScreenWidth();
+
     double iconSize = isPortrait ? 30.0 : 20.0;
-    double screenWidth = MediaQuery.of(context).size.width;
+    double expressionPaddingX = isPortrait ? 16.0 : (screenWidth / 11.0) / 3;
+    double expressionPaddingY = isPortrait ? 00.0 : 20.0;
     TextStyle textStyle = GoogleFonts.roboto(
         textStyle: TextStyle(
             fontSize: isPortrait ? 38.0 : 26.0,
             fontWeight: FontWeight.w400,
             color: buttonTextColor));
 
-    List<Widget> landscapeButtonListRow1 = isLandscape
+    List<Widget> landscapeButtonListRow1 = _isLandscape()
         ? <Widget>[
             _actionButtonWidget(
                 '(', _textWidget('(', textStyle), buttonAditionalBgColor),
@@ -972,7 +1053,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ]
         : <Widget>[];
 
-    List<Widget> landscapeButtonListRow2 = isLandscape
+    List<Widget> landscapeButtonListRow2 = _isLandscape()
         ? <Widget>[
             _actionButtonWidget(
                 _secondScheme ? '1st' : '2nd',
@@ -997,7 +1078,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ]
         : <Widget>[];
 
-    List<Widget> landscapeButtonListRow3 = isLandscape
+    List<Widget> landscapeButtonListRow3 = _isLandscape()
         ? <Widget>[
             _actionButtonWidget(
                 '1/x', _textWidget('1/x', textStyle), buttonAditionalBgColor),
@@ -1020,7 +1101,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ]
         : <Widget>[];
 
-    List<Widget> landscapeButtonListRow4 = isLandscape
+    List<Widget> landscapeButtonListRow4 = _isLandscape()
         ? <Widget>[
             _actionButtonWidget(
                 'x!', _textWidget('x!', textStyle), buttonAditionalBgColor),
@@ -1037,7 +1118,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ]
         : <Widget>[];
 
-    List<Widget> landscapeButtonListRow5 = isLandscape
+    List<Widget> landscapeButtonListRow5 = _isLandscape()
         ? <Widget>[
             _actionButtonWidget(
                 _isAngleModeEnabled ? 'deg' : 'rad',
@@ -1063,8 +1144,11 @@ class _HomeScreenState extends State<HomeScreen> {
           Expanded(
             child: Container(
               height: 100.0,
-              padding: EdgeInsets.symmetric(
-                  horizontal: isLandscape ? (screenWidth / 11.0) / 2 : 16.0),
+              padding: EdgeInsets.only(
+                left: expressionPaddingX,
+                right: expressionPaddingX,
+                top: expressionPaddingY,
+              ),
               alignment: Alignment.bottomRight,
               child: GestureDetector(
                 onHorizontalDragEnd: (details) {
@@ -1185,7 +1269,11 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           SizedBox(
             width: double.infinity,
-            height: isIOS ? 30.0 : 15.0,
+            height: isIOS
+                ? 30.0
+                : _isSmartphone
+                    ? 0.0
+                    : 20.0,
           ),
         ],
       ),
