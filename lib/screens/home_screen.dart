@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'dart:math';
+import 'dart:math' as math;
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -22,6 +24,8 @@ class _HomeScreenState extends State<HomeScreen> {
   static const Color operatorButtonBgColor = Colors.orange;
   static const Color specialButtonBgColor = Color(0xFF9B9B9B);
 
+  bool _isSmartphone = true;
+
   String _expression = '0';
   double _memoryValue = 0.0;
   bool _secondScheme = false;
@@ -31,8 +35,10 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isPowerEnabled = false;
   bool _isExponentialEnabled = false;
   bool _isTenToPowerXEnabled = false;
+  bool _isTwoToPowerXEnabled = false;
   bool _isCustomRootEnabled = false;
-  bool _isEEPowerEnabled = false;
+  bool _isAngleModeEnabled = false;
+  bool _isLogSubscriptYEnabled = false;
 
   double _xValue = 0.0;
   double _yValue = 0.0;
@@ -54,12 +60,16 @@ class _HomeScreenState extends State<HomeScreen> {
     _secondScheme = false;
     _resetExpression = false;
 
+    _isSmartphone = true;
+
     _isMemoryEnabled = false;
     _isPowerEnabled = false;
     _isExponentialEnabled = false;
     _isTenToPowerXEnabled = false;
+    _isTwoToPowerXEnabled = false;
     _isCustomRootEnabled = false;
-    _isEEPowerEnabled = false;
+    _isAngleModeEnabled = false;
+    _isLogSubscriptYEnabled = false;
 
     _xValue = 0.0;
     _yValue = 0.0;
@@ -107,6 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
           recallMemory();
           break;
         // row #2
+        case '1st':
         case '2nd':
           changeScheme();
           break;
@@ -122,24 +133,33 @@ class _HomeScreenState extends State<HomeScreen> {
         case '10^x':
           tenToPowerX();
           break;
+        case '2^x':
+          twoToPowerX();
+          break;
         // row #3
         case '1/x':
           reciprocal();
           break;
-        case '^2√x':
+        case 'sqrt[2]{x}':
           squareRootSquare();
           break;
-        case '^3√x':
+        case 'sqrt[3]{x}':
           cubeRootSquare();
           break;
-        case '^y√x':
+        case 'sqrt[y]{x}':
           customRoot();
           break;
         case 'ln':
           ln();
           break;
+        case 'log_2':
+          logSubscript2();
+          break;
         case 'log_10':
           logSubscript10();
+          break;
+        case 'log_y':
+          logSubscriptY();
           break;
         // row #4
         case 'x!':
@@ -159,6 +179,26 @@ class _HomeScreenState extends State<HomeScreen> {
           break;
         case 'EE':
           ee();
+          break;
+        // row #5
+        case 'rad':
+        case 'deg':
+          setAngleMode();
+          break;
+        case 'sinh':
+          sineh();
+          break;
+        case 'cosh':
+          cosineh();
+          break;
+        case 'tanh':
+          tangenth();
+          break;
+        case 'pi':
+          pi();
+          break;
+        case 'rand':
+          rand();
           break;
         default:
           appendText(text);
@@ -188,7 +228,9 @@ class _HomeScreenState extends State<HomeScreen> {
       _isPowerEnabled = false;
       _isExponentialEnabled = false;
       _isTenToPowerXEnabled = false;
+      _isTwoToPowerXEnabled = false;
       _isCustomRootEnabled = false;
+      _isLogSubscriptYEnabled = false;
 
       _xValue = 0.0;
       _yValue = 0.0;
@@ -204,7 +246,9 @@ class _HomeScreenState extends State<HomeScreen> {
       _isPowerEnabled = false;
       _isExponentialEnabled = false;
       _isTenToPowerXEnabled = false;
+      _isTwoToPowerXEnabled = false;
       _isCustomRootEnabled = false;
+      _isLogSubscriptYEnabled = false;
 
       _xValue = 0.0;
       _yValue = 0.0;
@@ -237,8 +281,18 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
+    if (_isTwoToPowerXEnabled) {
+      calculateTwoToPowerX();
+      return;
+    }
+
     if (_isCustomRootEnabled) {
       calculateCustomRoot();
+      return;
+    }
+
+    if (_isLogSubscriptYEnabled) {
+      calculateLogSubscriptY();
       return;
     }
 
@@ -394,6 +448,18 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void twoToPowerX() {
+    setState(() {
+      try {
+        _isTwoToPowerXEnabled = true;
+        _xValue = double.parse(_expression);
+        evaluateExpression();
+      } catch (e) {
+        _expression = 'Error';
+      }
+    });
+  }
+
   void reciprocal() {
     setState(() {
       try {
@@ -484,6 +550,21 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void logSubscript2() {
+    setState(() {
+      try {
+        double value = double.parse(_expression);
+        double result = log(value) / log(2);
+
+        _expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      } catch (e) {
+        _expression = 'Error';
+      }
+
+      _resetExpression = false;
+    });
+  }
+
   void logSubscript10() {
     setState(() {
       try {
@@ -496,6 +577,14 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
       _resetExpression = false;
+    });
+  }
+
+  void logSubscriptY() {
+    setState(() {
+      _isLogSubscriptYEnabled = !_isLogSubscriptYEnabled;
+      _yValue = double.parse(_expression);
+      _resetExpression = !_resetExpression;
     });
   }
 
@@ -605,8 +694,73 @@ class _HomeScreenState extends State<HomeScreen> {
       } catch (e) {
         _expression = 'Error';
       }
+    });
+  }
 
-      _isEEPowerEnabled = false;
+  void setAngleMode() {
+    setState(() {
+      _isAngleModeEnabled = !_isAngleModeEnabled;
+    });
+  }
+
+  void sineh() {
+    setState(() {
+      try {
+        Parser p = Parser();
+        Expression exp = p.parse(_expression);
+
+        double value = exp.evaluate(EvaluationType.REAL, ContextModel());
+        double result = _sinh(value);
+
+        _expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      } catch (e) {
+        _expression = 'Error';
+      }
+    });
+  }
+
+  void cosineh() {
+    setState(() {
+      try {
+        Parser p = Parser();
+        Expression exp = p.parse(_expression);
+
+        double value = exp.evaluate(EvaluationType.REAL, ContextModel());
+        double result = _cosh(value);
+
+        _expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      } catch (e) {
+        _expression = 'Error';
+      }
+    });
+  }
+
+  void tangenth() {
+    setState(() {
+      try {
+        Parser p = Parser();
+        Expression exp = p.parse(_expression);
+
+        double value = exp.evaluate(EvaluationType.REAL, ContextModel());
+        double result = _tanh(value);
+
+        _expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      } catch (e) {
+        _expression = 'Error';
+      }
+    });
+  }
+
+  void pi() {
+    setState(() {
+      double piValue = math.pi;
+      _expression = '$piValue';
+    });
+  }
+
+  void rand() {
+    setState(() {
+      _expression = Random().nextDouble().toString();
     });
   }
 
@@ -623,6 +777,16 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
       if (_isCustomRootEnabled) {
+        if (_resetExpression) {
+          _expression = '';
+          _resetExpression = false;
+        }
+
+        _expression += newText;
+        return;
+      }
+
+      if (_isLogSubscriptYEnabled) {
         if (_resetExpression) {
           _expression = '';
           _resetExpression = false;
@@ -720,6 +884,32 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void calculateTwoToPowerX() {
+    setState(() {
+      try {
+        Parser p = Parser();
+        Expression exp = p.parse(_expression);
+
+        ContextModel cm = ContextModel();
+        cm.bindVariable(Variable('x'), Number(_xValue));
+
+        _expression = '2^($exp)';
+
+        exp = p.parse(_expression);
+
+        var result = exp.evaluate(EvaluationType.REAL, cm);
+
+        _expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      } catch (e) {
+        _expression = 'Error';
+      }
+
+      _xValue = 0.0;
+      _yValue = 0.0;
+      _isTwoToPowerXEnabled = false;
+    });
+  }
+
   void calculateCustomRoot() {
     setState(() {
       try {
@@ -746,8 +936,92 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void calculateLogSubscriptY() {
+    setState(() {
+      try {
+        double value = double.parse(_expression);
+        double result = log(_yValue) / log(value);
+
+        _expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      } catch (e) {
+        _expression = 'Error';
+      }
+
+      _xValue = 0.0;
+      _isLogSubscriptYEnabled = false;
+      _resetExpression = false;
+    });
+  }
+
+  double _sinh(double x) {
+    return (exp(x) - exp(-x)) / 2;
+  }
+
+  double _cosh(double x) {
+    return (exp(x) + exp(-x)) / 2;
+  }
+
+  double _tanh(double x) {
+    double ex = exp(x);
+    double eMinusX = exp(-x);
+    return (ex - eMinusX) / (ex + eMinusX);
+  }
+
   bool _isInt(num value, {double epsilon = 1e-10}) {
     return value is int || (value - value.roundToDouble()).abs() < epsilon;
+  }
+
+  bool _isAndroid() {
+    return Platform.isAndroid;
+  }
+
+  bool _isIOS() {
+    return Platform.isIOS;
+  }
+
+  bool _isPortrait() {
+    return MediaQuery.of(context).orientation == Orientation.portrait;
+  }
+
+  bool _isLandscape() {
+    return MediaQuery.of(context).orientation == Orientation.landscape;
+  }
+
+  double _getScreenWidth() {
+    return MediaQuery.of(context).size.width;
+  }
+
+  double _getScreenHeight() {
+    return MediaQuery.of(context).size.height;
+  }
+
+  Future<void> checkSmartphone() async {
+    var platform = Theme.of(context).platform;
+    var screenWidth = MediaQuery.of(context).size.width;
+    var screenHeight = MediaQuery.of(context).size.height;
+
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+
+    setState(() {
+      _isSmartphone = true;
+    });
+
+    if (platform == TargetPlatform.android) {
+      double threshold = 600.0;
+      setState(() {
+        _isSmartphone = screenWidth < threshold || screenHeight < threshold;
+      });
+    } else if (platform == TargetPlatform.iOS) {
+      double threshold = 600.0;
+
+      setState(() {
+        _isSmartphone = screenWidth < threshold || screenHeight < threshold;
+      });
+    } else {
+      setState(() {
+        _isSmartphone = false;
+      });
+    }
   }
 
   String _getExpression() {
@@ -756,7 +1030,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _textWidget(String text, TextStyle style) {
     return FittedBox(
-      fit: BoxFit.fitWidth,
+      fit: BoxFit.contain,
       child: Text(
         text,
         textAlign: TextAlign.center,
@@ -766,9 +1040,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _topTextWidget(String text, String childText, TextStyle style) {
+  Widget _powerTextWidget(String text, String childText, TextStyle style) {
     return FittedBox(
-      fit: BoxFit.fitWidth,
+      fit: BoxFit.contain,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -789,9 +1063,32 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _bottomTextWidget(String text, String childText, TextStyle style) {
+  Widget _rootPowerTextWidget(String text, String childText, TextStyle style) {
     return FittedBox(
-      fit: BoxFit.fitWidth,
+      fit: BoxFit.contain,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Baseline(
+            baseline: 0,
+            baselineType: TextBaseline.alphabetic,
+            child: Text(
+              childText,
+              style: const TextStyle(fontSize: 14, color: Colors.white),
+            ),
+          ),
+          Text(
+            text,
+            style: style,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _subscriptTextWidget(String text, String childText, TextStyle style) {
+    return FittedBox(
+      fit: BoxFit.contain,
       child: Center(
         child: RichText(
           text: TextSpan(
@@ -811,13 +1108,23 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _actionButtonWidget(
       String buttonText, Widget buttonWidget, Color bgColor) {
-    Orientation orientation = MediaQuery.of(context).orientation;
-    bool isPortrait = orientation == Orientation.portrait;
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
-    double buttonWidth = isPortrait ? screenWidth / 4 : screenWidth / 11.0;
-    double buttonHeight =
-        isPortrait ? screenWidth / 4 : (screenHeight - 100.0) / 5.0;
+    bool isPortrait = _isPortrait();
+    double screenWidth = _getScreenWidth();
+
+    var buttonWidth = 0.0;
+    var buttonHeight = 0.0;
+
+    if (_isSmartphone) {
+      buttonWidth = isPortrait ? screenWidth / 4.0 : screenWidth / 10.5;
+      buttonHeight =
+          isPortrait ? screenWidth / 4.0 : (screenWidth - 100.0) / 16.0;
+    }
+
+    if (!_isSmartphone) {
+      buttonWidth = isPortrait ? screenWidth / 4.0 : screenWidth / 10.5;
+      buttonHeight =
+          isPortrait ? screenWidth / 8.0 : (screenWidth - 100.0) / 16.0;
+    }
 
     return SizedBox(
       width: buttonWidth,
@@ -838,19 +1145,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Orientation orientation = MediaQuery.of(context).orientation;
-    bool isIOS = Platform.isIOS;
-    bool isLandscape = orientation == Orientation.landscape;
-    bool isPortrait = orientation == Orientation.portrait;
+    checkSmartphone();
+
+    bool isPortrait = _isPortrait();
+    bool isIOS = _isIOS();
+    double screenWidth = _getScreenWidth();
+
     double iconSize = isPortrait ? 30.0 : 20.0;
-    double screenWidth = MediaQuery.of(context).size.width;
+    double expressionPaddingX = isPortrait ? 16.0 : (screenWidth / 11.0) / 3;
+    double expressionPaddingY = isPortrait ? 00.0 : 20.0;
     TextStyle textStyle = GoogleFonts.roboto(
         textStyle: TextStyle(
             fontSize: isPortrait ? 38.0 : 26.0,
             fontWeight: FontWeight.w400,
             color: buttonTextColor));
 
-    List<Widget> landscapeButtonListRow1 = isLandscape
+    List<Widget> landscapeButtonListRow1 = _isLandscape()
         ? <Widget>[
             _actionButtonWidget(
                 '(', _textWidget('(', textStyle), buttonAditionalBgColor),
@@ -871,55 +1181,69 @@ class _HomeScreenState extends State<HomeScreen> {
           ]
         : <Widget>[];
 
-    List<Widget> landscapeButtonListRow2 = isLandscape
+    List<Widget> landscapeButtonListRow2 = _isLandscape()
         ? <Widget>[
             _actionButtonWidget(
-                '2nd',
-                _topTextWidget('2', 'nd', textStyle),
+                _secondScheme ? '1st' : '2nd',
                 _secondScheme
-                    ? buttonSwitcherActiveBgColor
-                    : buttonAditionalBgColor),
-            _actionButtonWidget('x^2', _topTextWidget('x', '2', textStyle),
+                    ? _powerTextWidget('1', 'st', textStyle)
+                    : _powerTextWidget('2', 'nd', textStyle),
                 buttonAditionalBgColor),
-            _actionButtonWidget('x^3', _topTextWidget('x', '3', textStyle),
+            _actionButtonWidget('x^2', _powerTextWidget('x', '2', textStyle),
+                buttonAditionalBgColor),
+            _actionButtonWidget('x^3', _powerTextWidget('x', '3', textStyle),
                 buttonAditionalBgColor),
             _actionButtonWidget(
                 'x^y',
-                _topTextWidget('x', 'y', textStyle),
+                _powerTextWidget('x', 'y', textStyle),
                 _isPowerEnabled
                     ? buttonSwitcherActiveBgColor
                     : buttonAditionalBgColor),
-            _actionButtonWidget('e^x', _topTextWidget('e', 'x', textStyle),
+            _actionButtonWidget('e^x', _powerTextWidget('e', 'x', textStyle),
                 buttonAditionalBgColor),
-            _actionButtonWidget('10^x', _topTextWidget('10', 'x', textStyle),
+            _actionButtonWidget(
+                _secondScheme ? '2^x' : '10^x',
+                _secondScheme
+                    ? _powerTextWidget('2', 'x', textStyle)
+                    : _powerTextWidget('10', 'x', textStyle),
                 buttonAditionalBgColor),
           ]
         : <Widget>[];
 
-    List<Widget> landscapeButtonListRow3 = isLandscape
+    List<Widget> landscapeButtonListRow3 = _isLandscape()
         ? <Widget>[
             _actionButtonWidget(
                 '1/x', _textWidget('1/x', textStyle), buttonAditionalBgColor),
             _actionButtonWidget(
-                '^2√x', _textWidget('2√x', textStyle), buttonAditionalBgColor),
+                'sqrt[2]{x}',
+                _rootPowerTextWidget('√x', '2', textStyle),
+                buttonAditionalBgColor),
             _actionButtonWidget(
-                '^3√x', _textWidget('3√x', textStyle), buttonAditionalBgColor),
+                'sqrt[3]{x}',
+                _rootPowerTextWidget('√x', '3', textStyle),
+                buttonAditionalBgColor),
             _actionButtonWidget(
-                '^y√x',
-                _textWidget('y√x', textStyle),
+                'sqrt[y]{x}',
+                _rootPowerTextWidget('√x', 'y', textStyle),
                 _isCustomRootEnabled
                     ? buttonSwitcherActiveBgColor
                     : buttonAditionalBgColor),
             _actionButtonWidget(
-                'ln', _textWidget('ln', textStyle), buttonAditionalBgColor),
+                _secondScheme ? 'log_y' : 'ln',
+                _secondScheme
+                    ? _subscriptTextWidget('log', 'y', textStyle)
+                    : _textWidget('ln', textStyle),
+                buttonAditionalBgColor),
             _actionButtonWidget(
-                'log_10',
-                _bottomTextWidget('log', '10', textStyle),
+                _secondScheme ? 'log_2' : 'log_10',
+                _secondScheme
+                    ? _subscriptTextWidget('log', '2', textStyle)
+                    : _subscriptTextWidget('log', '10', textStyle),
                 buttonAditionalBgColor),
           ]
         : <Widget>[];
 
-    List<Widget> landscapeButtonListRow4 = isLandscape
+    List<Widget> landscapeButtonListRow4 = _isLandscape()
         ? <Widget>[
             _actionButtonWidget(
                 'x!', _textWidget('x!', textStyle), buttonAditionalBgColor),
@@ -936,20 +1260,22 @@ class _HomeScreenState extends State<HomeScreen> {
           ]
         : <Widget>[];
 
-    List<Widget> landscapeButtonListRow5 = isLandscape
+    List<Widget> landscapeButtonListRow5 = _isLandscape()
         ? <Widget>[
             _actionButtonWidget(
-                '(', _textWidget('Rad', textStyle), buttonAditionalBgColor),
+                _isAngleModeEnabled ? 'deg' : 'rad',
+                _textWidget(_isAngleModeEnabled ? 'Deg' : 'Rad', textStyle),
+                buttonAditionalBgColor),
             _actionButtonWidget(
-                ')', _textWidget('sinh', textStyle), buttonAditionalBgColor),
+                'sinh', _textWidget('sinh', textStyle), buttonAditionalBgColor),
             _actionButtonWidget(
-                ')', _textWidget('cosh', textStyle), buttonAditionalBgColor),
+                'cosh', _textWidget('cosh', textStyle), buttonAditionalBgColor),
             _actionButtonWidget(
-                ')', _textWidget('tanh', textStyle), buttonAditionalBgColor),
+                'tanh', _textWidget('tanh', textStyle), buttonAditionalBgColor),
             _actionButtonWidget(
-                ')', _textWidget('\u03C0', textStyle), buttonAditionalBgColor),
+                'pi', _textWidget('\u03C0', textStyle), buttonAditionalBgColor),
             _actionButtonWidget(
-                ')', _textWidget('Rand', textStyle), buttonAditionalBgColor),
+                'rand', _textWidget('Rand', textStyle), buttonAditionalBgColor),
           ]
         : <Widget>[];
 
@@ -960,8 +1286,11 @@ class _HomeScreenState extends State<HomeScreen> {
           Expanded(
             child: Container(
               height: 100.0,
-              padding: EdgeInsets.symmetric(
-                  horizontal: isLandscape ? (screenWidth / 11.0) / 2 : 16.0),
+              padding: EdgeInsets.only(
+                left: expressionPaddingX,
+                right: expressionPaddingX,
+                top: expressionPaddingY,
+              ),
               alignment: Alignment.bottomRight,
               child: GestureDetector(
                 onHorizontalDragEnd: (details) {
@@ -1082,7 +1411,11 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           SizedBox(
             width: double.infinity,
-            height: isIOS ? 30.0 : 15.0,
+            height: isIOS
+                ? 30.0
+                : _isSmartphone
+                    ? 0.0
+                    : 20.0,
           ),
         ],
       ),
