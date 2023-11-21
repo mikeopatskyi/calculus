@@ -49,6 +49,8 @@ android {
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+        // google ads
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -64,4 +66,7 @@ flutter {
     source '../..'
 }
 
-dependencies {}
+dependencies {
+    // google ads
+    // implementation "androidx.multidex:multidex:2.0.1"
+}
