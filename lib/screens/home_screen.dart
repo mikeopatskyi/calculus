@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 import 'dart:math' as math;
+import 'package:calculus/widgets/ad_popup_widget.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -1417,6 +1418,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ? 0.0
                     : 20.0,
           ),
+          const AdPopup(),
         ],
       ),
     );
