@@ -1,13 +1,22 @@
-import 'package:calculus/models/expression_model.dart';
-import 'package:calculus/services/device_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:calculus/store/calculator_store.dart';
+import 'package:calculus/services/device_service.dart';
 
-class ExpressionDisplayWidget extends StatelessWidget {
-  final ExpressionModel _expressionModel = ExpressionModel();
+final calculatorStore = CalculatorStore.getInstance();
 
-  ExpressionDisplayWidget({super.key});
+class ExpressionDisplayWidget extends StatefulWidget {
+  const ExpressionDisplayWidget({
+    Key? key,
+  }) : super(key: key);
 
+  @override
+  State<ExpressionDisplayWidget> createState() =>
+      _ExpressionDisplayWidgetState();
+}
+
+class _ExpressionDisplayWidgetState extends State<ExpressionDisplayWidget> {
   @override
   Widget build(BuildContext context) {
     DeviceService deviceService = DeviceService(context);
@@ -17,6 +26,7 @@ class ExpressionDisplayWidget extends StatelessWidget {
         : (deviceService.screenWidth / 11.0) / 3;
     double paddingY = deviceService.isPortrait ? 00.0 : 20.0;
 
+    print(calculatorStore.expression);
     return Expanded(
       child: Container(
         height: 100.0,
@@ -29,33 +39,29 @@ class ExpressionDisplayWidget extends StatelessWidget {
         child: GestureDetector(
           onHorizontalDragEnd: (details) {
             if (details.primaryVelocity! > 0) {
-              _expressionModel.removeLastCharacter();
+              calculatorStore.removeLastCharacter();
             }
 
             if (details.primaryVelocity! < 0) {
-              _expressionModel.removeFirstCharacter();
+              calculatorStore.removeFirstCharacter();
             }
           },
-          // child: Text(
-          //   _expressionModel.expression,
-          //   style: GoogleFonts.roboto(
-          //     textStyle: const TextStyle(
-          //       fontSize: 98.0,
-          //       fontWeight: FontWeight.w300,
-          //       color: Colors.white,
-          //     ),
-          //   ),
-          // ),
           child: FittedBox(
-            child: Text(
-              _expressionModel.expression,
-              style: GoogleFonts.roboto(
-                textStyle: const TextStyle(
-                  fontSize: 98.0,
-                  fontWeight: FontWeight.w300,
-                  color: Colors.white,
-                ),
-              ),
+            child: Observer(
+              builder: (context) {
+                print(
+                    'Rebuilding ExpressionDisplayWidget:: ${calculatorStore.expression}');
+                return Text(
+                  calculatorStore.expression,
+                  style: GoogleFonts.roboto(
+                    textStyle: const TextStyle(
+                      fontSize: 98.0,
+                      fontWeight: FontWeight.w300,
+                      color: Colors.white,
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ),

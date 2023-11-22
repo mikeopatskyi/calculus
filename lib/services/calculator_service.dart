@@ -1,152 +1,154 @@
 // import 'dart:math';
 import 'dart:math' as math;
 
-import 'package:calculus/models/expression_model.dart';
 import 'package:math_expressions/math_expressions.dart';
+import 'package:calculus/store/calculator_store.dart';
 
 class CalculatorService {
-  final ExpressionModel _expressionModel = ExpressionModel();
+  final CalculatorStore _calculatorStore;
+
+  CalculatorService(this._calculatorStore);
 
   String getExpression() {
-    return _expressionModel.expression;
+    return _calculatorStore.expression;
   }
 
   void appendToExpression(String value) {
-    String currentExpression = _expressionModel.expression;
-    _expressionModel.setExpression(currentExpression + value);
+    String currentExpression = _calculatorStore.expression;
+    _calculatorStore.setExpression(currentExpression + value);
   }
 
   void clearExpression() {
-    _expressionModel.clearExpression();
+    _calculatorStore.clearExpression();
   }
 
   void resetExpression() {
-    _expressionModel.resetExpression();
+    _calculatorStore.resetExpression();
   }
 
   void evaluate() {
     try {
-      String expression = _expressionModel.expression;
+      String expression = _calculatorStore.expression;
 
       Parser p = Parser();
       Expression exp = p.parse(expression);
       ContextModel cm = ContextModel();
       double result = exp.evaluate(EvaluationType.REAL, cm);
 
-      _expressionModel.setExpression(result.toString());
+      _calculatorStore.setExpression(result.toString());
     } catch (e) {
-      _expressionModel.setExpressionError();
+      _calculatorStore.setExpressionError();
     }
   }
 
   void toggleSecondScheme() {
-    _expressionModel.toggleSecondScheme();
+    _calculatorStore.toggleSecondScheme();
   }
 
   void togglePower() {
-    _expressionModel.togglePower();
+    _calculatorStore.togglePower();
   }
 
   void toggleCustomRoot() {
-    _expressionModel.toggleCustomRoot();
+    _calculatorStore.toggleCustomRoot();
   }
 
   void toggleMemory() {
-    _expressionModel.toggleMemory();
+    _calculatorStore.toggleMemory();
   }
 
   void toggleAngleMode() {
-    _expressionModel.toggleAngleMode();
+    _calculatorStore.toggleAngleMode();
   }
 
   bool isMemoryEnabled() {
-    return _expressionModel.isMemoryEnabled;
+    return _calculatorStore.isMemoryEnabled;
   }
 
   bool isPowerEnabled() {
-    return _expressionModel.isPowerEnabled;
+    return _calculatorStore.isPowerEnabled;
   }
 
   bool isCustomRootEnabled() {
-    return _expressionModel.isCustomRootEnabled;
+    return _calculatorStore.isCustomRootEnabled;
   }
 
   bool isSecondScheme() {
-    return _expressionModel.isSecondScheme;
+    return _calculatorStore.isSecondScheme;
   }
 
   bool isAngleModeEnabled() {
-    return _expressionModel.isAngleModeEnabled;
+    return _calculatorStore.isAngleModeEnabled;
   }
 
   bool isLogSubscriptYEnabled() {
-    return _expressionModel.isLogSubscriptYEnabled;
+    return _calculatorStore.isLogSubscriptYEnabled;
   }
 
   void setXValue(double value) {
-    _expressionModel.setXValue(value);
+    _calculatorStore.setXValue(value);
   }
 
   void setYValue(double value) {
-    _expressionModel.setYValue(value);
+    _calculatorStore.setYValue(value);
   }
 
   void backspace() {
-    String result = _expressionModel.expression.length > 1
-        ? _expressionModel.expression
-            .substring(0, _expressionModel.expression.length - 1)
+    String result = _calculatorStore.expression.length > 1
+        ? _calculatorStore.expression
+            .substring(0, _calculatorStore.expression.length - 1)
         : '0';
 
-    _expressionModel.setExpression(result);
+    _calculatorStore.setExpression(result);
 
-    _expressionModel.setPower(false);
-    _expressionModel.setExponential(false);
-    _expressionModel.setTenToPowerX(false);
-    _expressionModel.setTwoToPowerX(false);
-    _expressionModel.setCustomRoot(false);
-    _expressionModel.setLogSubscriptY(false);
+    _calculatorStore.setPower(false);
+    _calculatorStore.setExponential(false);
+    _calculatorStore.setTenToPowerX(false);
+    _calculatorStore.setTwoToPowerX(false);
+    _calculatorStore.setCustomRoot(false);
+    _calculatorStore.setLogSubscriptY(false);
 
-    _expressionModel.setXValue(0.0);
-    _expressionModel.setYValue(0.0);
+    _calculatorStore.setXValue(0.0);
+    _calculatorStore.setYValue(0.0);
   }
 
   void changeSign() {
-    if (_expressionModel.expression != '0') {
-      String result = _expressionModel.expression.startsWith('-')
-          ? _expressionModel.expression.substring(1)
-          : '-$_expressionModel.expression';
+    if (_calculatorStore.expression != '0') {
+      String result = _calculatorStore.expression.startsWith('-')
+          ? _calculatorStore.expression.substring(1)
+          : '-$_calculatorStore.expression';
 
-      _expressionModel.setExpression(result);
+      _calculatorStore.setExpression(result);
     }
   }
 
   void evaluateExpression() {
-    if (_expressionModel.isPowerEnabled) {
+    if (_calculatorStore.isPowerEnabled) {
       calculatePower();
       return;
     }
 
-    if (_expressionModel.isExponentialEnabled) {
+    if (_calculatorStore.isExponentialEnabled) {
       calculateExponential();
       return;
     }
 
-    if (_expressionModel.isTenToPowerXEnabled) {
+    if (_calculatorStore.isTenToPowerXEnabled) {
       calculateTenToPowerX();
       return;
     }
 
-    if (_expressionModel.isTwoToPowerXEnabled) {
+    if (_calculatorStore.isTwoToPowerXEnabled) {
       calculateTwoToPowerX();
       return;
     }
 
-    if (_expressionModel.isCustomRootEnabled) {
+    if (_calculatorStore.isCustomRootEnabled) {
       calculateCustomRoot();
       return;
     }
 
-    if (_expressionModel.isLogSubscriptYEnabled) {
+    if (_calculatorStore.isLogSubscriptYEnabled) {
       calculateLogSubscriptY();
       return;
     }
@@ -156,284 +158,284 @@ class CalculatorService {
 
   void applyPercentage() {
     try {
-      String expression = _expressionModel.expression;
+      String expression = _calculatorStore.expression;
       String result = expression += '/100';
 
-      _expressionModel.setExpression(result);
+      _calculatorStore.setExpression(result);
       evaluateExpression();
     } catch (e) {
-      _expressionModel.setExpressionError();
+      _calculatorStore.setExpressionError();
     }
   }
 
   void appendOperator(String operator) {
-    String expression = _expressionModel.expression;
+    String expression = _calculatorStore.expression;
     String result = expression += operator;
 
-    _expressionModel.setExpression(result);
+    _calculatorStore.setExpression(result);
   }
 
   void addDecimalPoint() {
-    if (!_expressionModel.expression.contains('.')) {
-      String expression = _expressionModel.expression;
+    if (!_calculatorStore.expression.contains('.')) {
+      String expression = _calculatorStore.expression;
       String result = expression += '.';
 
-      _expressionModel.setExpression(result);
+      _calculatorStore.setExpression(result);
     }
   }
 
   void clearMemory() {
-    _expressionModel.setMemory(false);
-    _expressionModel.resetMemoryValue();
+    _calculatorStore.setMemory(false);
+    _calculatorStore.resetMemoryValue();
   }
 
   void addToMemory() {
-    double memoryValue = _expressionModel.memoryValue;
+    double memoryValue = _calculatorStore.memoryValue;
 
-    memoryValue += double.parse(_expressionModel.expression);
+    memoryValue += double.parse(_calculatorStore.expression);
 
-    _expressionModel.setMemory(true);
-    _expressionModel.setMemoryValue(memoryValue);
+    _calculatorStore.setMemory(true);
+    _calculatorStore.setMemoryValue(memoryValue);
   }
 
   void subtractFromMemory() {
-    double memoryValue = _expressionModel.memoryValue;
+    double memoryValue = _calculatorStore.memoryValue;
 
-    memoryValue -= double.parse(_expressionModel.expression);
+    memoryValue -= double.parse(_calculatorStore.expression);
 
-    _expressionModel.setMemory(true);
-    _expressionModel.setMemoryValue(memoryValue);
+    _calculatorStore.setMemory(true);
+    _calculatorStore.setMemoryValue(memoryValue);
   }
 
   void recallMemory() {
-    double memoryValue = _expressionModel.memoryValue;
-    String result = _isInt(_expressionModel.memoryValue)
+    double memoryValue = _calculatorStore.memoryValue;
+    String result = _isInt(_calculatorStore.memoryValue)
         ? '$memoryValue'.split('.')[0]
         : '$memoryValue';
 
-    _expressionModel.setMemory(true);
-    _expressionModel.setExpression(result);
+    _calculatorStore.setMemory(true);
+    _calculatorStore.setExpression(result);
   }
 
   void changeScheme() {
-    _expressionModel.toggleSecondScheme();
+    _calculatorStore.toggleSecondScheme();
   }
 
   void square() {
     try {
       Parser p = Parser();
-      Expression exp = p.parse(_expressionModel.expression);
+      Expression exp = p.parse(_calculatorStore.expression);
       ContextModel cm = ContextModel();
 
       cm.bindVariable(Variable('x'), Number(0));
 
-      _expressionModel.setExpression('($exp)^2');
+      _calculatorStore.setExpression('($exp)^2');
 
-      exp = p.parse(_expressionModel.expression);
+      exp = p.parse(_calculatorStore.expression);
 
       double result = exp.evaluate(EvaluationType.REAL, cm);
       String expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
 
-      _expressionModel.setExpression(expression);
+      _calculatorStore.setExpression(expression);
     } catch (e) {
-      _expressionModel.setExpressionError();
+      _calculatorStore.setExpressionError();
     }
   }
 
   void cube() {
     try {
       Parser p = Parser();
-      Expression exp = p.parse(_expressionModel.expression);
+      Expression exp = p.parse(_calculatorStore.expression);
       ContextModel cm = ContextModel();
 
       cm.bindVariable(Variable('x'), Number(0));
 
-      _expressionModel.setExpression('($exp)^3');
+      _calculatorStore.setExpression('($exp)^3');
 
-      exp = p.parse(_expressionModel.expression);
+      exp = p.parse(_calculatorStore.expression);
 
       double result = exp.evaluate(EvaluationType.REAL, cm);
       String expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
 
-      _expressionModel.setExpression(expression);
+      _calculatorStore.setExpression(expression);
     } catch (e) {
-      _expressionModel.setExpressionError();
+      _calculatorStore.setExpressionError();
     }
   }
 
   void power() {
-    double xValue = double.parse(_expressionModel.expression);
+    double xValue = double.parse(_calculatorStore.expression);
 
-    _expressionModel.setXValue(xValue);
-    _expressionModel.togglePower();
-    _expressionModel.resetExpression();
+    _calculatorStore.setXValue(xValue);
+    _calculatorStore.togglePower();
+    _calculatorStore.resetExpression();
   }
 
   void exponentialPower() {
     try {
-      double xValue = double.parse(_expressionModel.expression);
+      double xValue = double.parse(_calculatorStore.expression);
 
-      _expressionModel.setXValue(xValue);
-      _expressionModel.toggleExponential();
+      _calculatorStore.setXValue(xValue);
+      _calculatorStore.toggleExponential();
       evaluateExpression();
     } catch (e) {
-      _expressionModel.setExpressionError();
+      _calculatorStore.setExpressionError();
     }
   }
 
   void tenToPowerX() {
     try {
-      double xValue = double.parse(_expressionModel.expression);
+      double xValue = double.parse(_calculatorStore.expression);
 
-      _expressionModel.setXValue(xValue);
-      _expressionModel.setTenToPowerX(true);
+      _calculatorStore.setXValue(xValue);
+      _calculatorStore.setTenToPowerX(true);
 
       evaluateExpression();
     } catch (e) {
-      _expressionModel.setExpressionError();
+      _calculatorStore.setExpressionError();
     }
   }
 
   void twoToPowerX() {
     try {
-      double xValue = double.parse(_expressionModel.expression);
+      double xValue = double.parse(_calculatorStore.expression);
 
-      _expressionModel.setXValue(xValue);
-      _expressionModel.setTwoToPowerX(true);
+      _calculatorStore.setXValue(xValue);
+      _calculatorStore.setTwoToPowerX(true);
 
       evaluateExpression();
     } catch (e) {
-      _expressionModel.setExpressionError();
+      _calculatorStore.setExpressionError();
     }
   }
 
   void reciprocal() {
     try {
       Parser p = Parser();
-      Expression exp = p.parse(_expressionModel.expression);
+      Expression exp = p.parse(_calculatorStore.expression);
       ContextModel cm = ContextModel();
 
-      _expressionModel.setExpression('1/($exp)');
+      _calculatorStore.setExpression('1/($exp)');
 
-      exp = p.parse(_expressionModel.expression);
+      exp = p.parse(_calculatorStore.expression);
 
       double result = exp.evaluate(EvaluationType.REAL, cm);
       String expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
 
-      _expressionModel.setExpression(expression);
+      _calculatorStore.setExpression(expression);
     } catch (e) {
-      _expressionModel.setExpressionError();
+      _calculatorStore.setExpressionError();
     }
   }
 
   void squareRootSquare() {
     try {
       Parser p = Parser();
-      Expression exp = p.parse(_expressionModel.expression);
+      Expression exp = p.parse(_calculatorStore.expression);
       ContextModel cm = ContextModel();
 
-      _expressionModel.setExpression('($exp)^(1/2)');
+      _calculatorStore.setExpression('($exp)^(1/2)');
 
-      exp = p.parse(_expressionModel.expression);
+      exp = p.parse(_calculatorStore.expression);
 
       double result = exp.evaluate(EvaluationType.REAL, cm);
       String expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
 
-      _expressionModel.setExpression(expression);
+      _calculatorStore.setExpression(expression);
     } catch (e) {
-      _expressionModel.setExpressionError();
+      _calculatorStore.setExpressionError();
     }
   }
 
   void cubeRootSquare() {
     try {
       Parser p = Parser();
-      Expression exp = p.parse(_expressionModel.expression);
+      Expression exp = p.parse(_calculatorStore.expression);
       ContextModel cm = ContextModel();
 
-      _expressionModel.setExpression('($exp)^(1/3)');
+      _calculatorStore.setExpression('($exp)^(1/3)');
 
-      exp = p.parse(_expressionModel.expression);
+      exp = p.parse(_calculatorStore.expression);
 
       double result = exp.evaluate(EvaluationType.REAL, cm);
       String expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
 
-      _expressionModel.setExpression(expression);
+      _calculatorStore.setExpression(expression);
     } catch (e) {
-      _expressionModel.setExpressionError();
+      _calculatorStore.setExpressionError();
     }
   }
 
   void customRoot() {
-    double yValue = double.parse(_expressionModel.expression);
+    double yValue = double.parse(_calculatorStore.expression);
 
-    _expressionModel.setYValue(yValue);
-    _expressionModel.toggleCustomRoot();
+    _calculatorStore.setYValue(yValue);
+    _calculatorStore.toggleCustomRoot();
   }
 
   void ln() {
     try {
       Parser p = Parser();
-      Expression exp = p.parse(_expressionModel.expression);
+      Expression exp = p.parse(_calculatorStore.expression);
       ContextModel cm = ContextModel();
 
-      _expressionModel.setExpression('ln($exp)');
+      _calculatorStore.setExpression('ln($exp)');
 
-      exp = p.parse(_expressionModel.expression);
+      exp = p.parse(_calculatorStore.expression);
 
       double result = exp.evaluate(EvaluationType.REAL, cm);
       String expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
 
-      _expressionModel.setExpression(expression);
+      _calculatorStore.setExpression(expression);
     } catch (e) {
-      _expressionModel.setExpressionError();
+      _calculatorStore.setExpressionError();
     }
 
-    _expressionModel.resetExpression();
+    _calculatorStore.resetExpression();
   }
 
   void logSubscript2() {
     try {
-      double value = double.parse(_expressionModel.expression);
+      double value = double.parse(_calculatorStore.expression);
       double result = math.log(value) / math.log(2);
       String expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
 
-      _expressionModel.setExpression(expression);
+      _calculatorStore.setExpression(expression);
     } catch (e) {
-      _expressionModel.setExpressionError();
+      _calculatorStore.setExpressionError();
     }
 
-    _expressionModel.resetExpression();
+    _calculatorStore.resetExpression();
   }
 
   void logSubscript10() {
     try {
-      double value = double.parse(_expressionModel.expression);
+      double value = double.parse(_calculatorStore.expression);
       double result = math.log(value) / math.ln10;
       String expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
 
-      _expressionModel.setExpression(expression);
+      _calculatorStore.setExpression(expression);
     } catch (e) {
-      _expressionModel.setExpressionError();
+      _calculatorStore.setExpressionError();
     }
 
-    _expressionModel.resetExpression();
+    _calculatorStore.resetExpression();
   }
 
   void logSubscriptY() {
-    double yValue = double.parse(_expressionModel.expression);
+    double yValue = double.parse(_calculatorStore.expression);
 
-    _expressionModel.setYValue(yValue);
-    _expressionModel.toggleLogSubscriptY();
-    _expressionModel.resetExpression();
+    _calculatorStore.setYValue(yValue);
+    _calculatorStore.toggleLogSubscriptY();
+    _calculatorStore.resetExpression();
   }
 
   void factorial() {
     try {
-      int value = int.parse(_expressionModel.expression);
+      int value = int.parse(_calculatorStore.expression);
 
       if (value < 0) {
-        _expressionModel.setExpressionError();
+        _calculatorStore.setExpressionError();
         return;
       }
 
@@ -442,329 +444,330 @@ class CalculatorService {
         result *= i;
       }
 
-      _expressionModel.setExpression('$result');
+      _calculatorStore.setExpression('$result');
     } catch (e) {
-      _expressionModel.setExpressionError();
+      _calculatorStore.setExpressionError();
     }
 
-    _expressionModel.resetExpression();
+    _calculatorStore.resetExpression();
   }
 
   void sine() {
     try {
       Parser p = Parser();
-      Expression exp = p.parse(_expressionModel.expression);
+      Expression exp = p.parse(_calculatorStore.expression);
       ContextModel cm = ContextModel();
 
       cm.bindVariable(Variable('x'), Number(0));
 
-      _expressionModel.setExpression('sin($exp)');
+      _calculatorStore.setExpression('sin($exp)');
 
-      exp = p.parse(_expressionModel.expression);
+      exp = p.parse(_calculatorStore.expression);
 
       double result = exp.evaluate(EvaluationType.REAL, cm);
 
-      _expressionModel.setExpression('$result');
+      _calculatorStore.setExpression('$result');
     } catch (e) {
-      _expressionModel.setExpressionError();
+      _calculatorStore.setExpressionError();
     }
 
-    _expressionModel.resetExpression();
+    _calculatorStore.resetExpression();
   }
 
   void cosine() {
     try {
       Parser p = Parser();
-      Expression exp = p.parse(_expressionModel.expression);
+      Expression exp = p.parse(_calculatorStore.expression);
       ContextModel cm = ContextModel();
 
       cm.bindVariable(Variable('x'), Number(0));
 
-      _expressionModel.setExpression('cos($exp)');
+      _calculatorStore.setExpression('cos($exp)');
 
-      exp = p.parse(_expressionModel.expression);
+      exp = p.parse(_calculatorStore.expression);
 
       double result = exp.evaluate(EvaluationType.REAL, cm);
-      _expressionModel.setExpression('$result');
+      _calculatorStore.setExpression('$result');
     } catch (e) {
-      _expressionModel.setExpressionError();
+      _calculatorStore.setExpressionError();
     }
 
-    _expressionModel.resetExpression();
+    _calculatorStore.resetExpression();
   }
 
   void tangent() {
     try {
       Parser p = Parser();
-      Expression exp = p.parse(_expressionModel.expression);
+      Expression exp = p.parse(_calculatorStore.expression);
       ContextModel cm = ContextModel();
 
       cm.bindVariable(Variable('x'), Number(0));
-      _expressionModel.setExpression('tan($exp)');
+      _calculatorStore.setExpression('tan($exp)');
 
-      exp = p.parse(_expressionModel.expression);
+      exp = p.parse(_calculatorStore.expression);
 
       double result = exp.evaluate(EvaluationType.REAL, cm);
 
-      _expressionModel.setExpression('$result');
+      _calculatorStore.setExpression('$result');
     } catch (e) {
-      _expressionModel.setExpressionError();
+      _calculatorStore.setExpressionError();
     }
 
-    _expressionModel.resetExpression();
+    _calculatorStore.resetExpression();
   }
 
   void exponential() {
     try {
       double eValue = math.exp(1);
 
-      _expressionModel.setExpression('$eValue');
+      _calculatorStore.setExpression('$eValue');
     } catch (e) {
-      _expressionModel.setExpressionError();
+      _calculatorStore.setExpressionError();
     }
 
-    _expressionModel.resetExpression();
+    _calculatorStore.resetExpression();
   }
 
   void ee() {
     try {
-      String powerExpression = _expressionModel.expression
-          .substring(_expressionModel.expression.lastIndexOf('^') + 1);
+      String powerExpression = _calculatorStore.expression
+          .substring(_calculatorStore.expression.lastIndexOf('^') + 1);
       double power = double.parse(powerExpression);
       double result =
-          double.parse(_expressionModel.expression) * math.pow(10, power);
+          double.parse(_calculatorStore.expression) * math.pow(10, power);
       String expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
 
-      _expressionModel.setExpression(expression);
+      _calculatorStore.setExpression(expression);
     } catch (e) {
-      _expressionModel.setExpressionError();
+      _calculatorStore.setExpressionError();
     }
   }
 
   void setAngleMode() {
-    _expressionModel.toggleAngleMode();
+    _calculatorStore.toggleAngleMode();
   }
 
   void sineh() {
     try {
       Parser p = Parser();
-      Expression exp = p.parse(_expressionModel.expression);
+      Expression exp = p.parse(_calculatorStore.expression);
 
       double value = exp.evaluate(EvaluationType.REAL, ContextModel());
       double result = _sinh(value);
       String expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
 
-      _expressionModel.setExpression(expression);
+      _calculatorStore.setExpression(expression);
     } catch (e) {
-      _expressionModel.setExpressionError();
+      _calculatorStore.setExpressionError();
     }
   }
 
   void cosineh() {
     try {
       Parser p = Parser();
-      Expression exp = p.parse(_expressionModel.expression);
+      Expression exp = p.parse(_calculatorStore.expression);
       double value = exp.evaluate(EvaluationType.REAL, ContextModel());
       double result = _cosh(value);
       String expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
 
-      _expressionModel.setExpression(expression);
+      _calculatorStore.setExpression(expression);
     } catch (e) {
-      _expressionModel.setExpressionError();
+      _calculatorStore.setExpressionError();
     }
   }
 
   void tangenth() {
     try {
       Parser p = Parser();
-      Expression exp = p.parse(_expressionModel.expression);
+      Expression exp = p.parse(_calculatorStore.expression);
       double value = exp.evaluate(EvaluationType.REAL, ContextModel());
       double result = _tanh(value);
       String expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
 
-      _expressionModel.setExpression(expression);
+      _calculatorStore.setExpression(expression);
     } catch (e) {
-      _expressionModel.setExpressionError();
+      _calculatorStore.setExpressionError();
     }
   }
 
   void pi() {
     double piValue = math.pi;
-    _expressionModel.setExpression('$piValue');
+    _calculatorStore.setExpression('$piValue');
   }
 
   void rand() {
     String expression = math.Random().nextDouble().toString();
-    _expressionModel.setExpression(expression);
+    _calculatorStore.setExpression(expression);
   }
 
   void appendText(String newText) {
-    if (_expressionModel.isResetExpression) {
-      _expressionModel.setExpression('');
-      _expressionModel.setResetExpression(false);
-    }
+    // if (_calculatorStore.isResetExpression) {
+    //   _calculatorStore.setExpression('');
+    //   _calculatorStore.setResetExpression(false);
+    // }
 
-    String expression = _expressionModel.expression;
+    // String expression = _calculatorStore.expression;
 
-    if (_expressionModel.isPowerEnabled ||
-        _expressionModel.isCustomRootEnabled ||
-        _expressionModel.isLogSubscriptYEnabled) {
-      expression += newText;
-    } else {
-      expression = (expression == '0') ? newText : expression + newText;
-    }
+    // if (_calculatorStore.isPowerEnabled ||
+    //     _calculatorStore.isCustomRootEnabled ||
+    //     _calculatorStore.isLogSubscriptYEnabled) {
+    //   expression += newText;
+    // } else {
+    //   expression = (expression == '0') ? newText : expression + newText;
+    // }
 
-    _expressionModel.setExpression(expression);
+    // _calculatorStore.setExpression(expression);
+    _calculatorStore.appendText(newText);
   }
 
   void calculatePower() {
     try {
       Parser p = Parser();
-      Expression exp = p.parse(_expressionModel.expression);
-      String originalExpression = _expressionModel.expression;
+      Expression exp = p.parse(_calculatorStore.expression);
+      String originalExpression = _calculatorStore.expression;
 
-      _expressionModel.resetExpression();
+      _calculatorStore.resetExpression();
       double yValue = double.parse(originalExpression);
 
-      _expressionModel.setYValue(yValue);
+      _calculatorStore.setYValue(yValue);
 
       ContextModel cm = ContextModel();
-      cm.bindVariable(Variable('x'), Number(_expressionModel.xValue));
-      cm.bindVariable(Variable('y'), Number(_expressionModel.yValue));
+      cm.bindVariable(Variable('x'), Number(_calculatorStore.xValue));
+      cm.bindVariable(Variable('y'), Number(_calculatorStore.yValue));
 
-      _expressionModel.setExpression('x^y');
+      _calculatorStore.setExpression('x^y');
 
-      exp = p.parse(_expressionModel.expression);
+      exp = p.parse(_calculatorStore.expression);
 
       double result = exp.evaluate(EvaluationType.REAL, cm);
       String expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
 
-      _expressionModel.setExpression(expression);
+      _calculatorStore.setExpression(expression);
     } catch (e) {
-      _expressionModel.setExpressionError();
+      _calculatorStore.setExpressionError();
     }
 
-    _expressionModel.setXValue(0.0);
-    _expressionModel.setYValue(0.0);
+    _calculatorStore.setXValue(0.0);
+    _calculatorStore.setYValue(0.0);
 
-    _expressionModel.setPower(false);
-    _expressionModel.resetExpression();
+    _calculatorStore.setPower(false);
+    _calculatorStore.resetExpression();
   }
 
   void calculateExponential() {
     try {
       Parser p = Parser();
-      Expression exp = p.parse(_expressionModel.expression);
+      Expression exp = p.parse(_calculatorStore.expression);
 
       ContextModel cm = ContextModel();
-      cm.bindVariable(Variable('x'), Number(_expressionModel.xValue));
+      cm.bindVariable(Variable('x'), Number(_calculatorStore.xValue));
 
-      _expressionModel.setExpression('e^($exp)');
+      _calculatorStore.setExpression('e^($exp)');
 
-      exp = p.parse(_expressionModel.expression);
+      exp = p.parse(_calculatorStore.expression);
 
       double result = exp.evaluate(EvaluationType.REAL, cm);
       String expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
 
-      _expressionModel.setExpression(expression);
+      _calculatorStore.setExpression(expression);
     } catch (e) {
-      _expressionModel.setExpressionError();
+      _calculatorStore.setExpressionError();
     }
 
-    _expressionModel.setXValue(0.0);
-    _expressionModel.setYValue(0.0);
-    _expressionModel.setExponential(false);
+    _calculatorStore.setXValue(0.0);
+    _calculatorStore.setYValue(0.0);
+    _calculatorStore.setExponential(false);
   }
 
   void calculateTenToPowerX() {
     try {
       Parser p = Parser();
-      Expression exp = p.parse(_expressionModel.expression);
+      Expression exp = p.parse(_calculatorStore.expression);
 
       ContextModel cm = ContextModel();
-      cm.bindVariable(Variable('x'), Number(_expressionModel.xValue));
+      cm.bindVariable(Variable('x'), Number(_calculatorStore.xValue));
 
-      _expressionModel.setExpression('10^($exp)');
+      _calculatorStore.setExpression('10^($exp)');
 
-      exp = p.parse(_expressionModel.expression);
+      exp = p.parse(_calculatorStore.expression);
 
       double result = exp.evaluate(EvaluationType.REAL, cm);
       String expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
 
-      _expressionModel.setExpression(expression);
+      _calculatorStore.setExpression(expression);
     } catch (e) {
-      _expressionModel.setExpressionError();
+      _calculatorStore.setExpressionError();
     }
 
-    _expressionModel.setXValue(0.0);
-    _expressionModel.setYValue(0.0);
-    _expressionModel.setTenToPowerX(false);
+    _calculatorStore.setXValue(0.0);
+    _calculatorStore.setYValue(0.0);
+    _calculatorStore.setTenToPowerX(false);
   }
 
   void calculateTwoToPowerX() {
     try {
       Parser p = Parser();
-      Expression exp = p.parse(_expressionModel.expression);
+      Expression exp = p.parse(_calculatorStore.expression);
 
       ContextModel cm = ContextModel();
-      cm.bindVariable(Variable('x'), Number(_expressionModel.xValue));
+      cm.bindVariable(Variable('x'), Number(_calculatorStore.xValue));
 
-      _expressionModel.setExpression('2^($exp)');
+      _calculatorStore.setExpression('2^($exp)');
 
-      exp = p.parse(_expressionModel.expression);
+      exp = p.parse(_calculatorStore.expression);
 
       double result = exp.evaluate(EvaluationType.REAL, cm);
       String expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
 
-      _expressionModel.setExpression(expression);
+      _calculatorStore.setExpression(expression);
     } catch (e) {
-      _expressionModel.setExpressionError();
+      _calculatorStore.setExpressionError();
     }
 
-    _expressionModel.setXValue(0.0);
-    _expressionModel.setYValue(0.0);
-    _expressionModel.setTwoToPowerX(false);
+    _calculatorStore.setXValue(0.0);
+    _calculatorStore.setYValue(0.0);
+    _calculatorStore.setTwoToPowerX(false);
   }
 
   void calculateCustomRoot() {
     try {
       Parser p = Parser();
-      Expression exp = p.parse(_expressionModel.expression);
+      Expression exp = p.parse(_calculatorStore.expression);
 
       ContextModel cm = ContextModel();
-      cm.bindVariable(Variable('y'), Number(_expressionModel.yValue));
+      cm.bindVariable(Variable('y'), Number(_calculatorStore.yValue));
 
-      _expressionModel.setExpression('(y)^(1/$exp)');
+      _calculatorStore.setExpression('(y)^(1/$exp)');
 
-      exp = p.parse(_expressionModel.expression);
+      exp = p.parse(_calculatorStore.expression);
 
       double result = exp.evaluate(EvaluationType.REAL, cm);
       String expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
 
-      _expressionModel.setExpression(expression);
+      _calculatorStore.setExpression(expression);
     } catch (e) {
-      _expressionModel.resetExpression();
+      _calculatorStore.resetExpression();
     }
 
-    _expressionModel.setXValue(0.0);
-    _expressionModel.setCustomRoot(false);
-    _expressionModel.resetExpression();
+    _calculatorStore.setXValue(0.0);
+    _calculatorStore.setCustomRoot(false);
+    _calculatorStore.resetExpression();
   }
 
   void calculateLogSubscriptY() {
     try {
-      double value = double.parse(_expressionModel.expression);
-      double result = math.log(_expressionModel.yValue) / math.log(value);
+      double value = double.parse(_calculatorStore.expression);
+      double result = math.log(_calculatorStore.yValue) / math.log(value);
       String expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
 
-      _expressionModel.setExpression(expression);
+      _calculatorStore.setExpression(expression);
     } catch (e) {
-      _expressionModel.setExpressionError();
+      _calculatorStore.setExpressionError();
     }
 
-    _expressionModel.setXValue(0.0);
-    _expressionModel.setLogSubscriptY(false);
-    _expressionModel.resetExpression();
+    _calculatorStore.setXValue(0.0);
+    _calculatorStore.setLogSubscriptY(false);
+    _calculatorStore.resetExpression();
   }
 
   double _sinh(double x) {

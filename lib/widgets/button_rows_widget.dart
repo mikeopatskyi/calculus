@@ -1,23 +1,27 @@
 import 'package:calculus/constants/app_colors.dart';
-import 'package:calculus/models/expression_model.dart';
 import 'package:calculus/services/calculator_service.dart';
 import 'package:calculus/services/device_service.dart';
+import 'package:calculus/store/calculator_store.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+final calculatorStore = CalculatorStore.getInstance();
+
+// ignore: must_be_immutable
 class ButtonsRowsWidget extends StatelessWidget {
-  final CalculatorService _calculatorService = CalculatorService();
-  final ExpressionModel _expressionModel = ExpressionModel();
+  late final CalculatorService _calculatorService;
 
   late bool isSmartphone;
   late bool isPortrait;
   late bool isLandscape;
 
-  late double screenWidth = 0.0;
-  late double screenHeight = 0.0;
+  late double screenWidth;
+  late double screenHeight;
 
-  ButtonsRowsWidget({super.key});
+  ButtonsRowsWidget({super.key}) {
+    _calculatorService = CalculatorService(calculatorStore);
+  }
 
   void _onButtonPressed(String text) {
     switch (text) {
@@ -299,7 +303,7 @@ class ButtonsRowsWidget extends StatelessWidget {
             _actionButtonWidget(
               'mr',
               _textWidget('mr', textStyle),
-              _expressionModel.isMemoryEnabled
+              calculatorStore.isMemoryEnabled
                   ? AppColors.buttonSwitcherActiveBgColor
                   : AppColors.buttonAdditionalBgColor,
             ),
@@ -309,8 +313,8 @@ class ButtonsRowsWidget extends StatelessWidget {
     List<Widget> landscapeButtonListRow2 = deviceService.isLandscape
         ? <Widget>[
             _actionButtonWidget(
-                _expressionModel.isSecondScheme ? '1st' : '2nd',
-                _expressionModel.isSecondScheme
+                calculatorStore.isSecondScheme ? '1st' : '2nd',
+                calculatorStore.isSecondScheme
                     ? _powerTextWidget('1', 'st', textStyle)
                     : _powerTextWidget('2', 'nd', textStyle),
                 AppColors.buttonAdditionalBgColor),
@@ -321,15 +325,15 @@ class ButtonsRowsWidget extends StatelessWidget {
             _actionButtonWidget(
               'x^y',
               _powerTextWidget('x', 'y', textStyle),
-              _expressionModel.isPowerEnabled
+              calculatorStore.isPowerEnabled
                   ? AppColors.buttonSwitcherActiveBgColor
                   : AppColors.buttonAdditionalBgColor,
             ),
             _actionButtonWidget('e^x', _powerTextWidget('e', 'x', textStyle),
                 AppColors.buttonAdditionalBgColor),
             _actionButtonWidget(
-              _expressionModel.isSecondScheme ? '2^x' : '10^x',
-              _expressionModel.isSecondScheme
+              calculatorStore.isSecondScheme ? '2^x' : '10^x',
+              calculatorStore.isSecondScheme
                   ? _powerTextWidget('2', 'x', textStyle)
                   : _powerTextWidget('10', 'x', textStyle),
               AppColors.buttonAdditionalBgColor,
@@ -352,20 +356,20 @@ class ButtonsRowsWidget extends StatelessWidget {
             _actionButtonWidget(
               'sqrt[y]{x}',
               _rootPowerTextWidget('√x', 'y', textStyle),
-              _expressionModel.isCustomRootEnabled
+              calculatorStore.isCustomRootEnabled
                   ? AppColors.buttonSwitcherActiveBgColor
                   : AppColors.buttonAdditionalBgColor,
             ),
             _actionButtonWidget(
-              _expressionModel.isSecondScheme ? 'log_y' : 'ln',
-              _expressionModel.isSecondScheme
+              calculatorStore.isSecondScheme ? 'log_y' : 'ln',
+              calculatorStore.isSecondScheme
                   ? _subscriptTextWidget('log', 'y', textStyle)
                   : _textWidget('ln', textStyle),
               AppColors.buttonAdditionalBgColor,
             ),
             _actionButtonWidget(
-              _expressionModel.isSecondScheme ? 'log_2' : 'log_10',
-              _expressionModel.isSecondScheme
+              calculatorStore.isSecondScheme ? 'log_2' : 'log_10',
+              calculatorStore.isSecondScheme
                   ? _subscriptTextWidget('log', '2', textStyle)
                   : _subscriptTextWidget('log', '10', textStyle),
               AppColors.buttonAdditionalBgColor,
@@ -393,8 +397,8 @@ class ButtonsRowsWidget extends StatelessWidget {
     List<Widget> landscapeButtonListRow5 = deviceService.isLandscape
         ? <Widget>[
             _actionButtonWidget(
-                _expressionModel.isAngleModeEnabled ? 'deg' : 'rad',
-                _textWidget(_expressionModel.isAngleModeEnabled ? 'Deg' : 'Rad',
+                calculatorStore.isAngleModeEnabled ? 'deg' : 'rad',
+                _textWidget(calculatorStore.isAngleModeEnabled ? 'Deg' : 'Rad',
                     textStyle),
                 AppColors.buttonAdditionalBgColor),
             _actionButtonWidget('sinh', _textWidget('sinh', textStyle),
