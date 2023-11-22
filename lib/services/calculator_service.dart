@@ -787,4 +787,8 @@ class CalculatorService {
   bool _isInt(num value, {double epsilon = 1e-10}) {
     return value is int || (value - value.roundToDouble()).abs() < epsilon;
   }
+
+  bool isInt(num value, {double epsilon = 1e-10}) {
+    return value is int || (value - value.roundToDouble()).abs() < epsilon;
+  }
 }

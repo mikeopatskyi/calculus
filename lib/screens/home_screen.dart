@@ -1,3 +1,4 @@
+import 'package:calculus/services/device_service.dart';
 import 'package:calculus/store/calculator_store.dart';
 import 'package:calculus/widgets/bottom_spacer_widget.dart';
 import 'package:calculus/widgets/button_rows_widget.dart';
@@ -28,14 +29,27 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print('Rebuilding HomeScreen:: ${calculatorStore.expression}');
+    DeviceService deviceService = DeviceService(context);
+
+    bool isSmartphone = deviceService.isSmartphone;
+    bool isPortrait = deviceService.isPortrait;
+    bool isLandscape = deviceService.isLandscape;
+
+    double screenWidth = deviceService.screenWidth;
+    double screenHeight = deviceService.screenHeight;
 
     return Scaffold(
       backgroundColor: Colors.black,
       body: Column(
         children: <Widget>[
           const ExpressionDisplayWidget(),
-          ButtonsRowsWidget(),
+          ButtonsRowsWidget(
+            isSmartphone: isSmartphone,
+            isPortrait: isPortrait,
+            isLandscape: isLandscape,
+            screenWidth: screenWidth,
+            screenHeight: screenHeight,
+          ),
           const BottomSpacerWidget(),
           // const AdPopup(),
         ],

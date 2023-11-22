@@ -26,7 +26,6 @@ class _ExpressionDisplayWidgetState extends State<ExpressionDisplayWidget> {
         : (deviceService.screenWidth / 11.0) / 3;
     double paddingY = deviceService.isPortrait ? 00.0 : 20.0;
 
-    print(calculatorStore.expression);
     return Expanded(
       child: Container(
         height: 100.0,
@@ -39,20 +38,23 @@ class _ExpressionDisplayWidgetState extends State<ExpressionDisplayWidget> {
         child: GestureDetector(
           onHorizontalDragEnd: (details) {
             if (details.primaryVelocity! > 0) {
-              calculatorStore.removeLastCharacter();
+              calculatorStore.removeFirstCharacter();
             }
 
             if (details.primaryVelocity! < 0) {
-              calculatorStore.removeFirstCharacter();
+              calculatorStore.removeLastCharacter();
             }
           },
           child: FittedBox(
+            fit: BoxFit.scaleDown,
             child: Observer(
               builder: (context) {
-                print(
-                    'Rebuilding ExpressionDisplayWidget:: ${calculatorStore.expression}');
+                String displayText = calculatorStore.expression.isNotEmpty
+                    ? calculatorStore.expression
+                    : '0';
+
                 return Text(
-                  calculatorStore.expression,
+                  displayText,
                   style: GoogleFonts.roboto(
                     textStyle: const TextStyle(
                       fontSize: 98.0,

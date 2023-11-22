@@ -405,33 +405,33 @@ mixin _$CalculatorStore on _CalculatorStore, Store {
   }
 
   @override
-  void setXValue(double xValue) {
+  void setXValue(double value) {
     final _$actionInfo = _$_CalculatorStoreActionController.startAction(
         name: '_CalculatorStore.setXValue');
     try {
-      return super.setXValue(xValue);
+      return super.setXValue(value);
     } finally {
       _$_CalculatorStoreActionController.endAction(_$actionInfo);
     }
   }
 
   @override
-  void setYValue(double yValue) {
+  void setYValue(double value) {
     final _$actionInfo = _$_CalculatorStoreActionController.startAction(
         name: '_CalculatorStore.setYValue');
     try {
-      return super.setYValue(yValue);
+      return super.setYValue(value);
     } finally {
       _$_CalculatorStoreActionController.endAction(_$actionInfo);
     }
   }
 
   @override
-  void setMemoryValue(double memoryValue) {
+  void setMemoryValue(double value) {
     final _$actionInfo = _$_CalculatorStoreActionController.startAction(
         name: '_CalculatorStore.setMemoryValue');
     try {
-      return super.setMemoryValue(memoryValue);
+      return super.setMemoryValue(value);
     } finally {
       _$_CalculatorStoreActionController.endAction(_$actionInfo);
     }
@@ -669,11 +669,484 @@ mixin _$CalculatorStore on _CalculatorStore, Store {
   }
 
   @override
+  void backspace() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.backspace');
+    try {
+      return super.backspace();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void changeSign() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.changeSign');
+    try {
+      return super.changeSign();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void evaluate() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.evaluate');
+    try {
+      return super.evaluate();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void evaluateExpression() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.evaluateExpression');
+    try {
+      return super.evaluateExpression();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void applyPercentage() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.applyPercentage');
+    try {
+      return super.applyPercentage();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void appendOperator(String operator) {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.appendOperator');
+    try {
+      return super.appendOperator(operator);
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void addDecimalPoint() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.addDecimalPoint');
+    try {
+      return super.addDecimalPoint();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void clearMemory() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.clearMemory');
+    try {
+      return super.clearMemory();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void addToMemory() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.addToMemory');
+    try {
+      return super.addToMemory();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void subtractFromMemory() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.subtractFromMemory');
+    try {
+      return super.subtractFromMemory();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void recallMemory() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.recallMemory');
+    try {
+      return super.recallMemory();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void changeScheme() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.changeScheme');
+    try {
+      return super.changeScheme();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void square() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.square');
+    try {
+      return super.square();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void cube() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.cube');
+    try {
+      return super.cube();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void power() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.power');
+    try {
+      return super.power();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void exponentialPower() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.exponentialPower');
+    try {
+      return super.exponentialPower();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void tenToPowerX() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.tenToPowerX');
+    try {
+      return super.tenToPowerX();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void twoToPowerX() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.twoToPowerX');
+    try {
+      return super.twoToPowerX();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void reciprocal() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.reciprocal');
+    try {
+      return super.reciprocal();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void squareRootSquare() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.squareRootSquare');
+    try {
+      return super.squareRootSquare();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void cubeRootSquare() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.cubeRootSquare');
+    try {
+      return super.cubeRootSquare();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void customRoot() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.customRoot');
+    try {
+      return super.customRoot();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void ln() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.ln');
+    try {
+      return super.ln();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void logSubscript2() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.logSubscript2');
+    try {
+      return super.logSubscript2();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void logSubscript10() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.logSubscript10');
+    try {
+      return super.logSubscript10();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void logSubscriptY() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.logSubscriptY');
+    try {
+      return super.logSubscriptY();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void factorial() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.factorial');
+    try {
+      return super.factorial();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void sine() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.sine');
+    try {
+      return super.sine();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void cosine() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.cosine');
+    try {
+      return super.cosine();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void tangent() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.tangent');
+    try {
+      return super.tangent();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void exponential() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.exponential');
+    try {
+      return super.exponential();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void ee() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.ee');
+    try {
+      return super.ee();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void sineh() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.sineh');
+    try {
+      return super.sineh();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void cosineh() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.cosineh');
+    try {
+      return super.cosineh();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void tangenth() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.tangenth');
+    try {
+      return super.tangenth();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void pi() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.pi');
+    try {
+      return super.pi();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void rand() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.rand');
+    try {
+      return super.rand();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void appendText(String newText) {
     final _$actionInfo = _$_CalculatorStoreActionController.startAction(
         name: '_CalculatorStore.appendText');
     try {
       return super.appendText(newText);
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void calculatePower() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.calculatePower');
+    try {
+      return super.calculatePower();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void calculateExponential() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.calculateExponential');
+    try {
+      return super.calculateExponential();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void calculateTenToPowerX() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.calculateTenToPowerX');
+    try {
+      return super.calculateTenToPowerX();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void calculateTwoToPowerX() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.calculateTwoToPowerX');
+    try {
+      return super.calculateTwoToPowerX();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void calculateCustomRoot() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.calculateCustomRoot');
+    try {
+      return super.calculateCustomRoot();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void calculateLogSubscriptY() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.calculateLogSubscriptY');
+    try {
+      return super.calculateLogSubscriptY();
     } finally {
       _$_CalculatorStoreActionController.endAction(_$actionInfo);
     }
