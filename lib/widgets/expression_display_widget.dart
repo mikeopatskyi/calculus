@@ -17,8 +17,39 @@ class ExpressionDisplayWidget extends StatefulWidget {
 }
 
 class _ExpressionDisplayWidgetState extends State<ExpressionDisplayWidget> {
-  @override
-  Widget build(BuildContext context) {
+  Widget _angleWidget(BuildContext context) {
+    DeviceService deviceService = DeviceService(context);
+
+    return deviceService.isLandscape
+        ? SizedBox(
+            // width: 60.0,
+            height: 100.0,
+            child: Observer(builder: (context) {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10.0),
+                    child: Text(
+                      calculatorStore.isAngleModeEnabled ? 'Deg' : 'Rad',
+                      style: GoogleFonts.roboto(
+                        textStyle: const TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }),
+          )
+        : const SizedBox();
+  }
+
+  Widget _expressionWidget(BuildContext context) {
     DeviceService deviceService = DeviceService(context);
 
     double paddingX = deviceService.isPortrait
@@ -26,47 +57,61 @@ class _ExpressionDisplayWidgetState extends State<ExpressionDisplayWidget> {
         : (deviceService.screenWidth / 11.0) / 3;
     double paddingY = deviceService.isPortrait ? 00.0 : 20.0;
 
-    return Expanded(
-      child: Container(
-        height: 100.0,
-        padding: EdgeInsets.only(
-          left: paddingX,
-          right: paddingX,
-          top: paddingY,
-        ),
-        alignment: Alignment.bottomRight,
-        child: GestureDetector(
-          onHorizontalDragEnd: (details) {
-            if (details.primaryVelocity! > 0) {
-              calculatorStore.removeFirstCharacter();
-            }
+    return Container(
+      width: MediaQuery.of(context).size.width -
+          (deviceService.isLandscape ? 60.0 : 0.0),
+      height: 100.0,
+      padding: EdgeInsets.only(
+        left: paddingX,
+        right: paddingX,
+        top: paddingY,
+      ),
+      alignment: Alignment.bottomRight,
+      child: GestureDetector(
+        onHorizontalDragEnd: (details) {
+          if (details.primaryVelocity! > 0) {
+            calculatorStore.removeFirstCharacter();
+          }
 
-            if (details.primaryVelocity! < 0) {
-              calculatorStore.removeLastCharacter();
-            }
-          },
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Observer(
-              builder: (context) {
-                String displayText = calculatorStore.expression.isNotEmpty
-                    ? calculatorStore.expression
-                    : '0';
+          if (details.primaryVelocity! < 0) {
+            calculatorStore.removeLastCharacter();
+          }
+        },
+        child: FittedBox(
+          fit: BoxFit.contain,
+          child: Observer(
+            builder: (context) {
+              String displayText = calculatorStore.expression.isNotEmpty
+                  ? calculatorStore.expression
+                  : '0';
 
-                return Text(
-                  displayText,
-                  style: GoogleFonts.roboto(
-                    textStyle: const TextStyle(
-                      fontSize: 98.0,
-                      fontWeight: FontWeight.w300,
-                      color: Colors.white,
-                    ),
+              return Text(
+                displayText,
+                style: GoogleFonts.roboto(
+                  textStyle: const TextStyle(
+                    fontSize: 98.0,
+                    fontWeight: FontWeight.w300,
+                    color: Colors.white,
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            },
           ),
         ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          _angleWidget(context),
+          _expressionWidget(context),
+        ],
       ),
     );
   }

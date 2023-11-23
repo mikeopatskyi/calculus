@@ -309,27 +309,21 @@ abstract class _CalculatorStore with Store {
 
     final functions = [
       () {
-        print('power');
         calculatePower();
       },
       () {
-        print('exponential');
         calculateExponential();
       },
       () {
-        print('tenToPowerX');
         calculateTenToPowerX();
       },
       () {
-        print('twoToPowerX');
         calculateTwoToPowerX();
       },
       () {
-        print('customRoot');
         calculateCustomRoot();
       },
       () {
-        print('logSubscriptY');
         calculateLogSubscriptY();
       },
     ];
@@ -341,7 +335,6 @@ abstract class _CalculatorStore with Store {
       }
     }
 
-    print('evaluate');
     evaluate();
   }
 
@@ -360,10 +353,20 @@ abstract class _CalculatorStore with Store {
 
   @action
   void appendOperator(String operator) {
-    String temporaryExpression = expression;
-    String result = temporaryExpression += operator;
+    try {
+      String temporaryExpression = expression;
+      String result = temporaryExpression += operator;
+      bool isMathOperation = _isMathOperation(operator);
+      bool endsWithMathOperation = _endsWithMathOperation(_expression);
 
-    setExpression(result);
+      if (isMathOperation && endsWithMathOperation) {
+        return;
+      }
+
+      setExpression(result);
+    } catch (e) {
+      setExpressionError();
+    }
   }
 
   @action
@@ -384,32 +387,44 @@ abstract class _CalculatorStore with Store {
 
   @action
   void addToMemory() {
-    double memoryValue = _memoryValue;
+    try {
+      double memoryValue = _memoryValue;
 
-    memoryValue += double.parse(expression);
+      memoryValue += double.parse(expression);
 
-    setMemory(true);
-    setMemoryValue(memoryValue);
+      setMemory(true);
+      setMemoryValue(memoryValue);
+    } catch (e) {
+      setExpressionError();
+    }
   }
 
   @action
   void subtractFromMemory() {
-    double memoryValue = _memoryValue;
+    try {
+      double memoryValue = _memoryValue;
 
-    memoryValue -= double.parse(expression);
+      memoryValue -= double.parse(expression);
 
-    setMemory(true);
-    setMemoryValue(memoryValue);
+      setMemory(true);
+      setMemoryValue(memoryValue);
+    } catch (e) {
+      setExpressionError();
+    }
   }
 
   @action
   void recallMemory() {
-    double memoryValue = _memoryValue;
-    String result =
-        _isInt(memoryValue) ? '$memoryValue'.split('.')[0] : '$memoryValue';
+    try {
+      double memoryValue = _memoryValue;
+      String result =
+          _isInt(memoryValue) ? '$memoryValue'.split('.')[0] : '$memoryValue';
 
-    setMemory(true);
-    setExpression(result);
+      setMemory(true);
+      setExpression(result);
+    } catch (e) {
+      setExpressionError();
+    }
   }
 
   @action
@@ -688,8 +703,6 @@ abstract class _CalculatorStore with Store {
 
       double result = exp.evaluate(EvaluationType.REAL, cm);
 
-      print('result: $result');
-
       setExpression('$result');
     } catch (e) {
       setExpressionError();
@@ -810,14 +823,22 @@ abstract class _CalculatorStore with Store {
 
   @action
   void pi() {
-    double piValue = math.pi;
-    setExpression('$piValue');
+    try {
+      double piValue = math.pi;
+      setExpression('$piValue');
+    } catch (e) {
+      setExpressionError();
+    }
   }
 
   @action
   void rand() {
-    String stringResult = math.Random().nextDouble().toString();
-    setExpression(stringResult);
+    try {
+      String stringResult = math.Random().nextDouble().toString();
+      setExpression(stringResult);
+    } catch (e) {
+      setExpressionError();
+    }
   }
 
   @action
@@ -1010,9 +1031,6 @@ abstract class _CalculatorStore with Store {
       String stringResult =
           _isInt(result) ? '$result'.split('.')[0] : '$result';
 
-      print('result: $result');
-      print('stringResult: $stringResult');
-
       setExpression(stringResult);
     } catch (e) {
       setExpressionError();
@@ -1038,5 +1056,21 @@ abstract class _CalculatorStore with Store {
 
   bool _isInt(num value, {double epsilon = 1e-10}) {
     return value is int || (value - value.roundToDouble()).abs() < epsilon;
+  }
+
+  bool _endsWithMathOperation(String input) {
+    if (input.isEmpty) {
+      return false;
+    }
+
+    final lastChar = input.substring(input.length - 1);
+    return _isMathOperation(lastChar);
+  }
+
+  bool _isMathOperation(String buttonText) {
+    return buttonText == '+' ||
+        buttonText == '-' ||
+        buttonText == '*' ||
+        buttonText == '/';
   }
 }
