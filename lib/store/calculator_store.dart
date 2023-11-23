@@ -284,12 +284,12 @@ abstract class _CalculatorStore with Store {
   void evaluate() {
     try {
       Parser p = Parser();
-      Expression exp = p.parse(expression);
+      Expression exp = p.parse(_expression);
       ContextModel cm = ContextModel();
       double result = exp.evaluate(EvaluationType.REAL, cm);
       String resultString =
           _isInt(result) ? '$result'.split('.')[0] : '$result';
-      print('---------------$resultString-----------------');
+
       setExpression(resultString);
     } catch (e) {
       setExpressionError();
@@ -547,9 +547,10 @@ abstract class _CalculatorStore with Store {
       exp = p.parse(_expression);
 
       double result = exp.evaluate(EvaluationType.REAL, cm);
-      String expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      String stringResult =
+          _isInt(result) ? '$result'.split('.')[0] : '$result';
 
-      setExpression(expression);
+      setExpression(stringResult);
     } catch (e) {
       setExpressionError();
     }
@@ -567,9 +568,10 @@ abstract class _CalculatorStore with Store {
       exp = p.parse(_expression);
 
       double result = exp.evaluate(EvaluationType.REAL, cm);
-      String expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      String stringResult =
+          _isInt(result) ? '$result'.split('.')[0] : '$result';
 
-      setExpression(expression);
+      setExpression(stringResult);
     } catch (e) {
       setExpressionError();
     }
@@ -577,10 +579,16 @@ abstract class _CalculatorStore with Store {
 
   @action
   void customRoot() {
-    double yValue = double.parse(expression);
+    try {
+      double yValue = double.parse(_expression);
 
-    setYValue(yValue);
-    toggleCustomRoot();
+      setYValue(yValue);
+      toggleCustomRoot();
+      toggleResetExpression();
+      clearExpression();
+    } catch (e) {
+      setExpressionError();
+    }
   }
 
   @action
@@ -595,14 +603,13 @@ abstract class _CalculatorStore with Store {
       exp = p.parse(_expression);
 
       double result = exp.evaluate(EvaluationType.REAL, cm);
-      String expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      String stringResult =
+          _isInt(result) ? '$result'.split('.')[0] : '$result';
 
-      setExpression(expression);
+      setExpression(stringResult);
     } catch (e) {
       setExpressionError();
     }
-
-    resetExpression();
   }
 
   @action
@@ -610,14 +617,13 @@ abstract class _CalculatorStore with Store {
     try {
       double value = double.parse(_expression);
       double result = math.log(value) / math.log(2);
-      String expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      String stringResult =
+          _isInt(result) ? '$result'.split('.')[0] : '$result';
 
-      setExpression(expression);
+      setExpression(stringResult);
     } catch (e) {
       setExpressionError();
     }
-
-    resetExpression();
   }
 
   @action
@@ -625,29 +631,33 @@ abstract class _CalculatorStore with Store {
     try {
       double value = double.parse(_expression);
       double result = math.log(value) / math.ln10;
-      String expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      String stringResult =
+          _isInt(result) ? '$result'.split('.')[0] : '$result';
 
-      setExpression(expression);
+      setExpression(stringResult);
     } catch (e) {
       setExpressionError();
     }
-
-    resetExpression();
   }
 
   @action
   void logSubscriptY() {
-    double yValue = double.parse(expression);
+    try {
+      double yValue = double.parse(_expression);
 
-    setYValue(yValue);
-    toggleLogSubscriptY();
-    resetExpression();
+      setYValue(yValue);
+      toggleLogSubscriptY();
+      toggleResetExpression();
+      clearExpression();
+    } catch (e) {
+      setExpressionError();
+    }
   }
 
   @action
   void factorial() {
     try {
-      int value = int.parse(expression);
+      int value = int.parse(_expression);
 
       if (value < 0) {
         setExpressionError();
@@ -663,66 +673,57 @@ abstract class _CalculatorStore with Store {
     } catch (e) {
       setExpressionError();
     }
-
-    resetExpression();
   }
 
   @action
   void sine() {
     try {
       Parser p = Parser();
-      Expression exp = p.parse(expression);
+      Expression exp = p.parse(_expression);
       ContextModel cm = ContextModel();
-
-      cm.bindVariable(Variable('x'), Number(_xValue));
 
       setExpression('sin($exp)');
 
-      exp = p.parse(expression);
+      exp = p.parse(_expression);
 
       double result = exp.evaluate(EvaluationType.REAL, cm);
+
+      print('result: $result');
 
       setExpression('$result');
     } catch (e) {
       setExpressionError();
     }
-
-    resetExpression();
   }
 
   @action
   void cosine() {
     try {
       Parser p = Parser();
-      Expression exp = p.parse(expression);
+      Expression exp = p.parse(_expression);
       ContextModel cm = ContextModel();
-
-      cm.bindVariable(Variable('x'), Number(_xValue));
 
       setExpression('cos($exp)');
 
-      exp = p.parse(expression);
+      exp = p.parse(_expression);
 
       double result = exp.evaluate(EvaluationType.REAL, cm);
       setExpression('$result');
     } catch (e) {
       setExpressionError();
     }
-
-    resetExpression();
   }
 
   @action
   void tangent() {
     try {
       Parser p = Parser();
-      Expression exp = p.parse(expression);
+      Expression exp = p.parse(_expression);
       ContextModel cm = ContextModel();
 
-      cm.bindVariable(Variable('x'), Number(_xValue));
       setExpression('tan($exp)');
 
-      exp = p.parse(expression);
+      exp = p.parse(_expression);
 
       double result = exp.evaluate(EvaluationType.REAL, cm);
 
@@ -730,8 +731,6 @@ abstract class _CalculatorStore with Store {
     } catch (e) {
       setExpressionError();
     }
-
-    resetExpression();
   }
 
   @action
@@ -743,8 +742,6 @@ abstract class _CalculatorStore with Store {
     } catch (e) {
       setExpressionError();
     }
-
-    resetExpression();
   }
 
   @action
@@ -754,9 +751,10 @@ abstract class _CalculatorStore with Store {
           _expression.substring(_expression.lastIndexOf('^') + 1);
       double power = double.parse(powerExpression);
       double result = double.parse(_expression) * math.pow(10, power);
-      String expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      String stringResult =
+          _isInt(result) ? '$result'.split('.')[0] : '$result';
 
-      setExpression(expression);
+      setExpression(stringResult);
     } catch (e) {
       setExpressionError();
     }
@@ -769,9 +767,10 @@ abstract class _CalculatorStore with Store {
       Expression exp = p.parse(_expression);
       double value = exp.evaluate(EvaluationType.REAL, ContextModel());
       double result = _sinh(value);
-      String expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      String stringResult =
+          _isInt(result) ? '$result'.split('.')[0] : '$result';
 
-      setExpression(expression);
+      setExpression(stringResult);
     } catch (e) {
       setExpressionError();
     }
@@ -784,9 +783,10 @@ abstract class _CalculatorStore with Store {
       Expression exp = p.parse(_expression);
       double value = exp.evaluate(EvaluationType.REAL, ContextModel());
       double result = _cosh(value);
-      String expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      String stringResult =
+          _isInt(result) ? '$result'.split('.')[0] : '$result';
 
-      setExpression(expression);
+      setExpression(stringResult);
     } catch (e) {
       setExpressionError();
     }
@@ -799,9 +799,10 @@ abstract class _CalculatorStore with Store {
       Expression exp = p.parse(_expression);
       double value = exp.evaluate(EvaluationType.REAL, ContextModel());
       double result = _tanh(value);
-      String expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      String stringResult =
+          _isInt(result) ? '$result'.split('.')[0] : '$result';
 
-      setExpression(expression);
+      setExpression(stringResult);
     } catch (e) {
       setExpressionError();
     }
@@ -815,58 +816,48 @@ abstract class _CalculatorStore with Store {
 
   @action
   void rand() {
-    String expression = math.Random().nextDouble().toString();
-    setExpression(expression);
+    String stringResult = math.Random().nextDouble().toString();
+    setExpression(stringResult);
   }
 
   @action
   void appendText(String newText) {
-    // if (isResetExpression) {
-    //   setExpression('');
-    //   setResetExpression(false);
-    // }
+    String originalExpression = _expression;
 
-    // String expression = _expression;
-
-    // if (isPowerEnabled || isCustomRootEnabled || isLogSubscriptYEnabled) {
-    //   expression += newText;
-    // } else {
-    //   expression = (expression == '0') ? newText : expression + newText;
-    // }
-
-    // setExpression(expression);
-
-    if (isPowerEnabled) {
+    if (_isPowerEnabled) {
       if (isResetExpression) {
         clearExpression();
         setResetExpression(false);
       }
 
-      setExpression(_expression + newText);
+      setExpression(originalExpression + newText);
       return;
     }
 
-    if (isCustomRootEnabled) {
+    if (_isCustomRootEnabled) {
       if (isResetExpression) {
         clearExpression();
         setResetExpression(false);
       }
 
-      setExpression(_expression + newText);
+      setExpression(originalExpression + newText);
       return;
     }
 
-    if (isLogSubscriptYEnabled) {
+    if (_isLogSubscriptYEnabled) {
       if (isResetExpression) {
         clearExpression();
         setResetExpression(false);
       }
 
-      setExpression(_expression + newText);
+      setExpression(originalExpression + newText);
       return;
     }
 
-    _expression = (_expression == '0') ? newText : _expression + newText;
+    String result =
+        (originalExpression == '0') ? newText : originalExpression + newText;
+
+    setExpression(result);
   }
 
   @action
@@ -880,8 +871,6 @@ abstract class _CalculatorStore with Store {
       double yValue = double.parse(originalExpression);
 
       setYValue(yValue);
-
-      print('xValue = $_xValue');
 
       ContextModel cm = ContextModel();
       cm.bindVariable(Variable('x'), Number(_xValue));
@@ -920,9 +909,10 @@ abstract class _CalculatorStore with Store {
       exp = p.parse(_expression);
 
       double result = exp.evaluate(EvaluationType.REAL, cm);
-      String expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      String stringResult =
+          _isInt(result) ? '$result'.split('.')[0] : '$result';
 
-      setExpression(expression);
+      setExpression(stringResult);
     } catch (e) {
       setExpressionError();
     }
@@ -946,9 +936,10 @@ abstract class _CalculatorStore with Store {
       exp = p.parse(_expression);
 
       double result = exp.evaluate(EvaluationType.REAL, cm);
-      String expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      String stringResult =
+          _isInt(result) ? '$result'.split('.')[0] : '$result';
 
-      setExpression(expression);
+      setExpression(stringResult);
     } catch (e) {
       setExpressionError();
     }
@@ -972,9 +963,10 @@ abstract class _CalculatorStore with Store {
       exp = p.parse(_expression);
 
       double result = exp.evaluate(EvaluationType.REAL, cm);
-      String expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      String stringResult =
+          _isInt(result) ? '$result'.split('.')[0] : '$result';
 
-      setExpression(expression);
+      setExpression(stringResult);
     } catch (e) {
       setExpressionError();
     }
@@ -991,40 +983,43 @@ abstract class _CalculatorStore with Store {
       Expression exp = p.parse(_expression);
 
       ContextModel cm = ContextModel();
-      cm.bindVariable(Variable('y'), Number(yValue));
+      cm.bindVariable(Variable('y'), Number(_yValue));
 
       setExpression('(y)^(1/$exp)');
 
       exp = p.parse(_expression);
 
       double result = exp.evaluate(EvaluationType.REAL, cm);
-      String expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      String stringResult =
+          _isInt(result) ? '$result'.split('.')[0] : '$result';
 
-      setExpression(expression);
+      setExpression(stringResult);
     } catch (e) {
-      resetExpression();
+      setExpressionError();
     }
 
     setXValue(0.0);
-    setCustomRoot(false);
-    resetExpression();
+    toggleCustomRoot();
   }
 
   @action
   void calculateLogSubscriptY() {
     try {
       double value = double.parse(_expression);
-      double result = math.log(yValue) / math.log(value);
-      String expression = _isInt(result) ? '$result'.split('.')[0] : '$result';
+      double result = math.log(_yValue) / math.log(value);
+      String stringResult =
+          _isInt(result) ? '$result'.split('.')[0] : '$result';
 
-      setExpression(expression);
+      print('result: $result');
+      print('stringResult: $stringResult');
+
+      setExpression(stringResult);
     } catch (e) {
       setExpressionError();
     }
 
     setXValue(0.0);
-    setLogSubscriptY(false);
-    resetExpression();
+    toggleLogSubscriptY();
   }
 
   double _sinh(double x) {

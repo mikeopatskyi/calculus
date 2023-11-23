@@ -332,7 +332,9 @@ class ButtonsRowsWidget extends StatelessWidget {
                   calculatorStore.isSecondScheme
                       ? _powerTextWidget('1', 'st', textStyle)
                       : _powerTextWidget('2', 'nd', textStyle),
-                  AppColors.buttonAdditionalBgColor);
+                  calculatorStore.isSecondScheme
+                      ? AppColors.buttonSwitcherActiveBgColor
+                      : AppColors.buttonAdditionalBgColor);
             }),
             _actionButtonWidget('x^2', _powerTextWidget('x', '2', textStyle),
                 AppColors.buttonAdditionalBgColor),
@@ -393,7 +395,9 @@ class ButtonsRowsWidget extends StatelessWidget {
                 calculatorStore.isSecondScheme
                     ? _subscriptTextWidget('log', 'y', textStyle)
                     : _textWidget('ln', textStyle),
-                AppColors.buttonAdditionalBgColor,
+                calculatorStore.isLogSubscriptYEnabled
+                    ? AppColors.buttonSwitcherActiveBgColor
+                    : AppColors.buttonAdditionalBgColor,
               );
             }),
             Observer(builder: (_) {
