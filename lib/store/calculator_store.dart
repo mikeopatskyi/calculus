@@ -97,6 +97,7 @@ abstract class _CalculatorStore with Store {
 
   @action
   void setExpression(String expression) {
+    // expression = replaceOperators(expression);
     _expression = expression;
   }
 
@@ -1072,5 +1073,9 @@ abstract class _CalculatorStore with Store {
         buttonText == '-' ||
         buttonText == '*' ||
         buttonText == '/';
+  }
+
+  String replaceOperators(String input) {
+    return input.replaceAll('*', '×').replaceAll('/', '÷');
   }
 }
