@@ -43,6 +43,7 @@ dependencies:
   google_mobile_ads: ^3.1.0
   mobx: ^2.2.1
   flutter_mobx: ^2.2.0
+  flutter_math_fork: ^0.7.2
 
 dev_dependencies:
   flutter_test:
@@ -57,7 +58,6 @@ dev_dependencies:
   flutter_launcher_icons: ^0.13.1
   build_runner: ^2.4.6
   mobx_codegen: ^2.4.0
-  latext: ^0.0.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

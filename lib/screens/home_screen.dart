@@ -3,6 +3,7 @@ import 'package:calculus/store/calculator_store.dart';
 import 'package:calculus/widgets/bottom_spacer_widget.dart';
 import 'package:calculus/widgets/button_rows_widget.dart';
 import 'package:calculus/widgets/expression_display_widget.dart';
+import 'package:calculus/widgets/latex_widget.dart';
 import 'package:flutter/material.dart';
 
 final calculatorStore = CalculatorStore.getInstance();
