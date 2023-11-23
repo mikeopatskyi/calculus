@@ -41,6 +41,9 @@ dependencies:
   google_fonts: ^6.1.0
   device_info_plus: ^9.1.0
   google_mobile_ads: ^3.1.0
+  mobx: ^2.2.1
+  flutter_mobx: ^2.2.0
+  flutter_math_fork: ^0.7.2
 
 dev_dependencies:
   flutter_test:
@@ -53,6 +56,8 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
   flutter_launcher_icons: ^0.13.1
+  build_runner: ^2.4.6
+  mobx_codegen: ^2.4.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
