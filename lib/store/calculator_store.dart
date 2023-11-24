@@ -6,6 +6,7 @@ part 'calculator_store.g.dart';
 
 class CalculatorStore extends _CalculatorStore with _$CalculatorStore {
   CalculatorStore._();
+
   factory CalculatorStore.getInstance() => _instance;
   static final CalculatorStore _instance = CalculatorStore._();
 }
@@ -97,20 +98,23 @@ abstract class _CalculatorStore with Store {
 
   @action
   void setExpression(String expression) {
-    // expression = replaceOperators(expression);
     _expression = expression;
   }
 
   @action
   void removeFirstCharacter() {
-    _expression = _expression.length > 1 ? _expression.substring(1) : '0';
+    String result = _expression.length > 1 ? _expression.substring(1) : '0';
+
+    setExpression(result);
   }
 
   @action
   void removeLastCharacter() {
-    _expression = _expression.length > 1
+    String result = _expression.length > 1
         ? _expression.substring(0, _expression.length - 1)
         : '0';
+
+    setExpression(result);
   }
 
   @action
@@ -248,10 +252,6 @@ abstract class _CalculatorStore with Store {
     _isLogSubscriptYEnabled = !_isLogSubscriptYEnabled;
   }
 
-  /////////////////////////////////////////////////////////////////////////////
-  /// Methods
-  /////////////////////////////////////////////////////////////////////////////
-
   @action
   void backspace() {
     String result = expression.length > 1
@@ -285,7 +285,8 @@ abstract class _CalculatorStore with Store {
   void evaluate() {
     try {
       Parser p = Parser();
-      Expression exp = p.parse(_expression);
+      String originalExpression = replaceOnRealOperators(expression);
+      Expression exp = p.parse(originalExpression);
       ContextModel cm = ContextModel();
       double result = exp.evaluate(EvaluationType.REAL, cm);
       String resultString =
@@ -356,9 +357,14 @@ abstract class _CalculatorStore with Store {
   void appendOperator(String operator) {
     try {
       String temporaryExpression = expression;
-      String result = temporaryExpression += operator;
+      String result =
+          replaceOnVirtualOperators(temporaryExpression += operator);
       bool isMathOperation = _isMathOperation(operator);
       bool endsWithMathOperation = _endsWithMathOperation(_expression);
+
+      if (_expression == '0' || _expression.isEmpty) {
+        return;
+      }
 
       if (isMathOperation && endsWithMathOperation) {
         return;
@@ -1068,14 +1074,29 @@ abstract class _CalculatorStore with Store {
     return _isMathOperation(lastChar);
   }
 
-  bool _isMathOperation(String buttonText) {
-    return buttonText == '+' ||
-        buttonText == '-' ||
-        buttonText == '*' ||
-        buttonText == '/';
+  bool _isMathOperation(String value) {
+    return value == '+' ||
+        value == '-' ||
+        value == '*' ||
+        value == '/' ||
+        value == '×' ||
+        value == '÷';
   }
 
-  String replaceOperators(String input) {
+  bool _hasSpecialOperator(String input, String operator) {
+    for (int i = 0; i < input.length; i++) {
+      if (input[i] == operator) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  String replaceOnVirtualOperators(String input) {
     return input.replaceAll('*', '×').replaceAll('/', '÷');
+  }
+
+  String replaceOnRealOperators(String input) {
+    return input.replaceAll('×', '*').replaceAll('÷', '/');
   }
 }
