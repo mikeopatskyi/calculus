@@ -17,38 +17,6 @@ class ExpressionDisplayWidget extends StatefulWidget {
 }
 
 class _ExpressionDisplayWidgetState extends State<ExpressionDisplayWidget> {
-  Widget _angleWidget(BuildContext context) {
-    DeviceService deviceService = DeviceService(context);
-
-    return deviceService.isLandscape
-        ? SizedBox(
-            // width: 60.0,
-            height: 100.0,
-            child: Observer(builder: (context) {
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10.0),
-                    child: Text(
-                      calculatorStore.isAngleModeEnabled ? 'Deg' : 'Rad',
-                      style: GoogleFonts.roboto(
-                        textStyle: const TextStyle(
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            }),
-          )
-        : const SizedBox();
-  }
-
   Widget _expressionWidget(BuildContext context) {
     DeviceService deviceService = DeviceService(context);
 
@@ -109,7 +77,6 @@ class _ExpressionDisplayWidgetState extends State<ExpressionDisplayWidget> {
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          _angleWidget(context),
           _expressionWidget(context),
         ],
       ),

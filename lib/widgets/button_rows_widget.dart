@@ -24,11 +24,8 @@ class ButtonsRowsWidget extends StatelessWidget {
     required this.screenHeight,
   });
 
-  // ButtonsRowsWidget({super.key});
-
   void _onButtonPressed(String text) {
     switch (text) {
-      // PORTRAIT
       case 'AC':
         calculatorStore.clearExpression();
         break;
@@ -38,7 +35,7 @@ class ButtonsRowsWidget extends StatelessWidget {
         calculatorStore.changeSign();
         break;
       case '=':
-        calculatorStore.evaluateExpression();
+        calculatorStore.evaluate();
         break;
       case '%':
         calculatorStore.applyPercentage();
@@ -51,107 +48,6 @@ class ButtonsRowsWidget extends StatelessWidget {
         break;
       case '.':
         calculatorStore.addDecimalPoint();
-        break;
-      // LANDSCAPE
-      // row #1
-      case 'mc':
-        calculatorStore.clearMemory();
-        break;
-      case 'm+':
-        calculatorStore.addToMemory();
-        break;
-      case 'm-':
-        calculatorStore.subtractFromMemory();
-        break;
-      case 'mr':
-        calculatorStore.recallMemory();
-        break;
-      // row #2
-      case '1st':
-      case '2nd':
-        calculatorStore.changeScheme();
-        break;
-      case 'x^3':
-        calculatorStore.cube();
-        break;
-      case 'x^2':
-        calculatorStore.square();
-        break;
-      case 'x^y':
-        calculatorStore.power();
-        break;
-      case 'e^x':
-        calculatorStore.exponentialPower();
-        break;
-      case '10^x':
-        calculatorStore.tenToPowerX();
-        break;
-      case '2^x':
-        calculatorStore.twoToPowerX();
-        break;
-      // row #3
-      case '1/x':
-        calculatorStore.reciprocal();
-        break;
-      case 'sqrt[2]{x}':
-        calculatorStore.squareRootSquare();
-        break;
-      case 'sqrt[3]{x}':
-        calculatorStore.cubeRootSquare();
-        break;
-      case 'sqrt[y]{x}':
-        calculatorStore.customRoot();
-        break;
-      case 'ln':
-        calculatorStore.ln();
-        break;
-      case 'log_2':
-        calculatorStore.logSubscript2();
-        break;
-      case 'log_10':
-        calculatorStore.logSubscript10();
-        break;
-      case 'log_y':
-        calculatorStore.logSubscriptY();
-        break;
-      // row #4
-      case 'x!':
-        calculatorStore.factorial();
-        break;
-      case 'sin':
-        calculatorStore.sine();
-        break;
-      case 'cos':
-        calculatorStore.cosine();
-        break;
-      case 'tan':
-        calculatorStore.tangent();
-        break;
-      case 'e':
-        calculatorStore.exponential();
-        break;
-      case 'EE':
-        calculatorStore.ee();
-        break;
-      // row #5
-      case 'rad':
-      case 'deg':
-        calculatorStore.toggleAngleMode();
-        break;
-      case 'sinh':
-        calculatorStore.sineh();
-        break;
-      case 'cosh':
-        calculatorStore.cosineh();
-        break;
-      case 'tanh':
-        calculatorStore.tangenth();
-        break;
-      case 'pi':
-        calculatorStore.pi();
-        break;
-      case 'rand':
-        calculatorStore.rand();
         break;
       default:
         calculatorStore.appendText(text);
@@ -217,26 +113,6 @@ class ButtonsRowsWidget extends StatelessWidget {
     );
   }
 
-  Widget _subscriptTextWidget(String text, String childText, TextStyle style) {
-    return FittedBox(
-      fit: BoxFit.contain,
-      child: Center(
-        child: RichText(
-          text: TextSpan(
-            text: text,
-            style: style,
-            children: <TextSpan>[
-              TextSpan(
-                text: childText,
-                style: const TextStyle(fontSize: 14, color: Colors.white),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _actionButtonWidget(
     String buttonText,
     Widget buttonWidget,
@@ -285,212 +161,11 @@ class ButtonsRowsWidget extends StatelessWidget {
       ),
     );
 
-    List<Widget> landscapeButtonListRow1 = isLandscape
-        ? <Widget>[
-            _actionButtonWidget(
-              '(',
-              _textWidget('(', textStyle),
-              AppColors.buttonAdditionalBgColor,
-            ),
-            _actionButtonWidget(
-              ')',
-              _textWidget(')', textStyle),
-              AppColors.buttonAdditionalBgColor,
-            ),
-            _actionButtonWidget(
-              'mc',
-              _textWidget('mc', textStyle),
-              AppColors.buttonAdditionalBgColor,
-            ),
-            _actionButtonWidget(
-              'm+',
-              _textWidget('m+', textStyle),
-              AppColors.buttonAdditionalBgColor,
-            ),
-            _actionButtonWidget(
-              'm-',
-              _textWidget('m-', textStyle),
-              AppColors.buttonAdditionalBgColor,
-            ),
-            Observer(builder: (_) {
-              return _actionButtonWidget(
-                'mr',
-                _textWidget('mr', textStyle),
-                calculatorStore.isMemoryEnabled
-                    ? AppColors.buttonSwitcherActiveBgColor
-                    : AppColors.buttonAdditionalBgColor,
-              );
-            })
-          ]
-        : <Widget>[];
-
-    List<Widget> landscapeButtonListRow2 = isLandscape
-        ? <Widget>[
-            Observer(builder: (_) {
-              return _actionButtonWidget(
-                  calculatorStore.isSecondScheme ? '1st' : '2nd',
-                  calculatorStore.isSecondScheme
-                      ? _powerTextWidget('1', 'st', textStyle)
-                      : _powerTextWidget('2', 'nd', textStyle),
-                  calculatorStore.isSecondScheme
-                      ? AppColors.buttonSwitcherActiveBgColor
-                      : AppColors.buttonAdditionalBgColor);
-            }),
-            _actionButtonWidget('x^2', _powerTextWidget('x', '2', textStyle),
-                AppColors.buttonAdditionalBgColor),
-            _actionButtonWidget('x^3', _powerTextWidget('x', '3', textStyle),
-                AppColors.buttonAdditionalBgColor),
-            Observer(builder: (_) {
-              return _actionButtonWidget(
-                'x^y',
-                _powerTextWidget('x', 'y', textStyle),
-                calculatorStore.isPowerEnabled
-                    ? AppColors.buttonSwitcherActiveBgColor
-                    : AppColors.buttonAdditionalBgColor,
-              );
-            }),
-            _actionButtonWidget('e^x', _powerTextWidget('e', 'x', textStyle),
-                AppColors.buttonAdditionalBgColor),
-            Observer(builder: (_) {
-              return _actionButtonWidget(
-                calculatorStore.isSecondScheme ? '2^x' : '10^x',
-                calculatorStore.isSecondScheme
-                    ? _powerTextWidget('2', 'x', textStyle)
-                    : _powerTextWidget('10', 'x', textStyle),
-                AppColors.buttonAdditionalBgColor,
-              );
-            }),
-          ]
-        : <Widget>[];
-
-    List<Widget> landscapeButtonListRow3 = isLandscape
-        ? <Widget>[
-            _actionButtonWidget(
-              '1/x',
-              _textWidget('1/x', textStyle),
-              AppColors.buttonAdditionalBgColor,
-            ),
-            _actionButtonWidget(
-              'sqrt[2]{x}',
-              _rootPowerTextWidget('√x', '2', textStyle),
-              AppColors.buttonAdditionalBgColor,
-            ),
-            _actionButtonWidget(
-              'sqrt[3]{x}',
-              _rootPowerTextWidget('√x', '3', textStyle),
-              AppColors.buttonAdditionalBgColor,
-            ),
-            Observer(builder: (_) {
-              return _actionButtonWidget(
-                'sqrt[y]{x}',
-                _rootPowerTextWidget('√x', 'y', textStyle),
-                calculatorStore.isCustomRootEnabled
-                    ? AppColors.buttonSwitcherActiveBgColor
-                    : AppColors.buttonAdditionalBgColor,
-              );
-            }),
-            Observer(builder: (_) {
-              return _actionButtonWidget(
-                calculatorStore.isSecondScheme ? 'log_y' : 'ln',
-                calculatorStore.isSecondScheme
-                    ? _subscriptTextWidget('log', 'y', textStyle)
-                    : _textWidget('ln', textStyle),
-                calculatorStore.isLogSubscriptYEnabled
-                    ? AppColors.buttonSwitcherActiveBgColor
-                    : AppColors.buttonAdditionalBgColor,
-              );
-            }),
-            Observer(builder: (_) {
-              return _actionButtonWidget(
-                calculatorStore.isSecondScheme ? 'log_2' : 'log_10',
-                calculatorStore.isSecondScheme
-                    ? _subscriptTextWidget('log', '2', textStyle)
-                    : _subscriptTextWidget('log', '10', textStyle),
-                AppColors.buttonAdditionalBgColor,
-              );
-            }),
-          ]
-        : <Widget>[];
-
-    List<Widget> landscapeButtonListRow4 = isLandscape
-        ? <Widget>[
-            _actionButtonWidget(
-              'x!',
-              _textWidget('x!', textStyle),
-              AppColors.buttonAdditionalBgColor,
-            ),
-            _actionButtonWidget(
-              'sin',
-              _textWidget('sin', textStyle),
-              AppColors.buttonAdditionalBgColor,
-            ),
-            _actionButtonWidget(
-              'cos',
-              _textWidget('cos', textStyle),
-              AppColors.buttonAdditionalBgColor,
-            ),
-            _actionButtonWidget(
-              'tan',
-              _textWidget('tan', textStyle),
-              AppColors.buttonAdditionalBgColor,
-            ),
-            _actionButtonWidget(
-              'e',
-              _textWidget('e', textStyle),
-              AppColors.buttonAdditionalBgColor,
-            ),
-            _actionButtonWidget(
-              'EE',
-              _textWidget('EE', textStyle),
-              AppColors.buttonAdditionalBgColor,
-            ),
-          ]
-        : <Widget>[];
-
-    List<Widget> landscapeButtonListRow5 = isLandscape
-        ? <Widget>[
-            Observer(builder: (_) {
-              return _actionButtonWidget(
-                calculatorStore.isAngleModeEnabled ? 'deg' : 'rad',
-                _textWidget(calculatorStore.isAngleModeEnabled ? 'Deg' : 'Rad',
-                    textStyle),
-                AppColors.buttonAdditionalBgColor,
-              );
-            }),
-            _actionButtonWidget(
-              'sinh',
-              _textWidget('sinh', textStyle),
-              AppColors.buttonAdditionalBgColor,
-            ),
-            _actionButtonWidget(
-              'cosh',
-              _textWidget('cosh', textStyle),
-              AppColors.buttonAdditionalBgColor,
-            ),
-            _actionButtonWidget(
-              'tanh',
-              _textWidget('tanh', textStyle),
-              AppColors.buttonAdditionalBgColor,
-            ),
-            _actionButtonWidget(
-              'pi',
-              _textWidget('\u03C0', textStyle),
-              AppColors.buttonAdditionalBgColor,
-            ),
-            _actionButtonWidget(
-              'rand',
-              _textWidget('Rand', textStyle),
-              AppColors.buttonAdditionalBgColor,
-            ),
-          ]
-        : <Widget>[];
-
     return Column(
       children: <Widget>[
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            ...landscapeButtonListRow1,
             _actionButtonWidget('AC', _textWidget('AC', textStyle),
                 AppColors.specialButtonBgColor),
             _actionButtonWidget('C', _textWidget('C', textStyle),
@@ -510,7 +185,6 @@ class ButtonsRowsWidget extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            ...landscapeButtonListRow2,
             _actionButtonWidget(
                 '7', _textWidget('7', textStyle), AppColors.buttonBgColor),
             _actionButtonWidget(
@@ -527,7 +201,6 @@ class ButtonsRowsWidget extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            ...landscapeButtonListRow3,
             _actionButtonWidget(
                 '4', _textWidget('4', textStyle), AppColors.buttonBgColor),
             _actionButtonWidget(
@@ -544,7 +217,6 @@ class ButtonsRowsWidget extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            ...landscapeButtonListRow4,
             _actionButtonWidget(
                 '1', _textWidget('1', textStyle), AppColors.buttonBgColor),
             _actionButtonWidget(
@@ -561,7 +233,6 @@ class ButtonsRowsWidget extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            ...landscapeButtonListRow5,
             _actionButtonWidget(
                 '0', _textWidget('0', textStyle), AppColors.buttonBgColor),
             _actionButtonWidget(
