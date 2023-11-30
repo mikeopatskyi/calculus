@@ -30,7 +30,7 @@ class ButtonsRowsWidget extends StatelessWidget {
     switch (text) {
       // PORTRAIT
       case 'AC':
-        calculatorStore.clearExpression();
+        calculatorStore.reset();
         break;
       case 'C':
         calculatorStore.backspace();

@@ -405,6 +405,17 @@ mixin _$CalculatorStore on _CalculatorStore, Store {
   }
 
   @override
+  void reset() {
+    final _$actionInfo = _$_CalculatorStoreActionController.startAction(
+        name: '_CalculatorStore.reset');
+    try {
+      return super.reset();
+    } finally {
+      _$_CalculatorStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void setXValue(double value) {
     final _$actionInfo = _$_CalculatorStoreActionController.startAction(
         name: '_CalculatorStore.setXValue');
