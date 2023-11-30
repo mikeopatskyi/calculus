@@ -133,6 +133,24 @@ abstract class _CalculatorStore with Store {
   }
 
   @action
+  void reset() {
+    setExpression('0');
+    setXValue(0.0);
+    setYValue(0.0);
+    setMemoryValue(0.0);
+    setSecondScheme(false);
+    setResetExpression(false);
+    setMemory(false);
+    setPower(false);
+    setExponential(false);
+    setTenToPowerX(false);
+    setTwoToPowerX(false);
+    setCustomRoot(false);
+    setAngleMode(false);
+    setLogSubscriptY(false);
+  }
+
+  @action
   void setXValue(double value) {
     _xValue = value;
   }
